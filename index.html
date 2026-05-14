@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Bit Dungeon: Durability Patch</title>
+<style>
+    /* VISUAL STYLE: This makes the game look dark, centers everything, and makes pixels look sharp */
+    *{ box-sizing:border-box; margin:0; padding:0; image-rendering:pixelated; user-select:none; }
+    body{ background:#0a0a0a; color:#fff; font-family:'Courier New', monospace; display:flex; align-items:center; justify-content:center; height:100vh; width:100vw; overflow:hidden; }
+    .game-system{ display: flex; align-items: flex-end; gap: 10px; }
+    .side-controls{ display:flex; flex-direction:column; gap: 15px; align-items: center; }
+    
+    /* HUD: These are the stats boxes on the left and right */
+    .hud-panel { background: #1a1a1a; border: 2px solid #444; padding: 6px; display: grid; gap: 4px; width: 160px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+    .hud-item { background: #111; border: 1px solid #333; padding: 4px 6px; display: flex; justify-content: space-between; align-items: center; font-size: 10px; }
+    .hud-item b { color: #fff; font-size: 11px; }
+    
+    /* THE SCREEN: The box where the game actually happens */
+    .screen-container{ position:relative; border:6px solid #333; background:#000; display:flex; flex-direction: column; transition: transform 0.05s; }
+    canvas{ background:#050505; width: 400px; height: 400px; }
+    
+    /* BUTTONS: Styles for the D-Pad and Action buttons */
+    .pixel-btn{ background:#222; border:3px solid #444; color:#eee; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:22px; box-shadow: inset -3px -3px #000; width:55px; height:55px; }
+    .pixel-btn:active{ background:#ddd; color:#000; transform: scale(0.9); }
+    .dpad, .diamond{ display:grid; grid-template-columns:repeat(3, 55px); grid-template-rows:repeat(3, 55px); }
+    .d-up{ grid-column:2; grid-row:1; } .d-left{ grid-column:1; grid-row:2; } .d-right{ grid-column:3; grid-row:2; } .d-down{ grid-column:2; grid-row:3; }
+    .btn-swd{ grid-column:1; grid-row:2; } .btn-shd{ grid-column:2; grid-row:1; } .btn-trc{ grid-column:2; grid-row:3; } .btn-pot{ grid-column:3; grid-row:2; }
+    
+    /* OVERLAY: The Game Over / Victory screen */
+    .overlay{ position:absolute; inset:0; background:rgba(0,0,0,0.9); display:none; flex-direction:column; align-items:center; justify-content:center; z-index:100; text-align: center; }
+</style>
+</head>
+<body>
+
+<div class="game-system">
+    <!-- LEFT SIDE: Stats (Health, Attack) and Movement Buttons -->
+    <div class="side-controls">
+        <div class="hud-panel">
+            <div class="hud-item">LVL <b id="lvl">⭐1</b></div>
+            <div class="hud-item">HP <b id="hp">❤️20</b></div>
+            <div class="hud-item">ATK <b id="atk">⚔️1</b></div>
+            <div class="hud-item">DEF <b id="def">🛡️0</b></div>
+            <div class="hud-item">XP <b id="xp">0/8</b></div>
+            <div class="hud-item">FLR <b id="fl">🪜1</b></div>
+            <div class="hud-item">LIT <b id="light">💡OFF</b></div>
+        </div>
+        <div class="dpad">
+            <div class="pixel-btn d-up" onmousedown="handleInput('w')">▲</div>
+            <div class="pixel-btn d-left" onmousedown="handleInput('a')">◀</div>
+            <div class="pixel-btn d-right" onmousedown="handleInput('d')">▶</div>
+            <div class="pixel-btn d-down" onmousedown="handleInput('s')">▼</div>
+        </div>
+    </div>
+
+    <!-- CENTER: The Game World -->
+    <div class="screen-container" id="shake-target">
+        <canvas id="game" width="320" height="320"></canvas>
+        <div class="overlay" id="gameOver">
+            <h1 id="statusTitle" style="color:red; font-size: 40px;">RETIRED</h1>
+            <p id="stats-summary" style="font-size: 12px; margin: 10px;"></p>
+            <button onclick="location.reload()" style="margin-top:20px; padding:10px; cursor:pointer; background:#444; color:white; border:none;">REAWAKEN</button>
+        </div>
+    </div>
+
+    <!-- RIGHT SIDE: Inventory (Sword, Torch) and Action Buttons -->
+    <div class="side-controls">
+        <div class="hud-panel">
+            <div class="hud-item">SWD <b id="h-sw">🗡️10</b></div>
+            <div class="hud-item">SHD <b id="h-sh">🛡️10</b></div>
+            <div class="hud-item">TRC <b id="h-tr">🔥20</b></div>
+            <div class="hud-item">POT <b id="h-pt">🧪1</b></div>
+            <div class="hud-item">COIN <b id="coins">🪙0</b></div>
+        </div>
+        <div class="diamond">
+            <div class="pixel-btn btn-swd" onclick="handleInput('q')">🗡️</div>
+            <div class="pixel-btn btn-shd" onclick="handleInput('e')">🛡️</div>
+            <div class="pixel-btn btn-trc" onclick="handleInput('r')">🔥</div>
+            <div class="pixel-btn btn-pot" onclick="handleInput('t')">🧪</div>
+        </div>
+    </div>
+</div>
+
+<script>
+// --- CORE SETTINGS ---
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+const shakeTarget = document.getElementById('shake-target');
+const TILE_SIZE = 16, MAP_SIZE = 20;
+
+// --- DATA: How strong are the monsters? ---
+const ENEMIES = {
+    lvl1: { hp: 2, atk: 2, def: 0, xp: 1, drop: 0.2, icons: ['🪲','🕷️','🦂'] },
+    lvl2: { hp: 10, atk: 3, def: 1, xp: 3, drop: 0.4, icons: ['🦎','🐀','🦇'] },
+    lvl3: { hp: 25, atk: 5, def: 2, xp: 8, drop: 0.6, icons: ['🐺','🧟','💀'] }
+};
+
+const XP_TABLE = [0, 8, 16, 32, 64, 128, 256, 512]; // How much XP to level up
+const EMOJIS = { player:'⚔️', stairs:'🪜', potion:'🧪', coin:'🪙', sword:'🗡️', shield:'🛡️', torch:'🔥', merchant: '👳' };
+
+// --- GAME STATE: Current status of the world ---
+let map = [], enemies = [], items = [], explored = [];
+let torchActive = false, coins = 0, stairsPos = {x:0, y:0};
+let inv = { torchDur: 20, potions: 1, swordDur: 10, shieldDur: 10 };
+let player = { x:1, y:1, hp:20, maxHp:20, atk:1, def:0, lvl:1, xp:0, floor:1, swdOn:false, shdOn:false };
+let slashState = 0;
+
+// --- AUDIO: Generating retro bleeps and bloops mathematically ---
+const AudioEngine = {
+    ctx: null, musicStarted: false,
+    init() { if (!this.ctx) { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); this.startMusic(); } if (this.ctx.state === 'suspended') this.ctx.resume(); },
+    startMusic() {
+        if (this.musicStarted) return; this.musicStarted = true;
+        const playLayer = (freq, vol, speed) => {
+            const osc = this.ctx.createOscillator(); const lfo = this.ctx.createOscillator(); const lfoGain = this.ctx.createGain(); const gain = this.ctx.createGain();
+            osc.type = 'triangle'; osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+            lfo.type = 'sine'; lfo.frequency.setValueAtTime(speed, this.ctx.currentTime);
+            lfoGain.gain.setValueAtTime(freq * 0.02, this.ctx.currentTime); gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+            lfo.connect(lfoGain); lfoGain.connect(osc.frequency); osc.connect(gain); gain.connect(this.ctx.destination);
+            osc.start(); lfo.start();
+        };
+        playLayer(60, 0.01, 0.1); playLayer(85, 0.01, 0.15); // Low background hums
+    },
+    // Plays a specific tone (freq = pitch, type = waveform, dur = length)
+    play(freq, type, dur, vol = 0.1, freqEnd = null) {
+        this.init(); const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
+        osc.type = type; osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+        if (freqEnd) osc.frequency.exponentialRampToValueAtTime(freqEnd, this.ctx.currentTime + dur);
+        gain.gain.setValueAtTime(vol, this.ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + dur);
+        osc.connect(gain); gain.connect(this.ctx.destination); osc.start(); osc.stop(this.ctx.currentTime + dur);
+    },
+    // Generates "static" noise for the torch or fire
+    noise(dur, vol = 0.05) {
+        this.init(); const bufferSize = this.ctx.sampleRate * dur; const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const data = buffer.getChannelData(0); for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+        const source = this.ctx.createBufferSource(); source.buffer = buffer;
+        const gain = this.ctx.createGain(); gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + dur);
+        source.connect(gain); gain.connect(this.ctx.destination); source.start();
+    },
+    sfx(type) {
+        switch(type) {
+            case 'sword-on': this.play(800, 'sine', 0.1, 0.1, 1200); break;
+            case 'sword-off': this.play(400, 'sine', 0.1, 0.1, 200); break;
+            case 'shield-on': this.play(300, 'square', 0.1, 0.05, 500); break;
+            case 'shield-off': this.play(300, 'square', 0.1, 0.05, 150); break;
+            case 'torch': this.noise(0.2, 0.1); break;
+            case 'potion': this.play(200, 'sine', 0.3, 0.1, 600); break;
+            case 'ui-click': this.play(1000, 'sine', 0.05, 0.05); break;
+            case 'sword-hit': this.play(1200, 'sine', 0.1, 0.05); this.play(800, 'triangle', 0.15); break;
+            case 'punch': this.play(120, 'triangle', 0.1); break;
+            case 'block': this.play(400, 'square', 0.08, 0.05); break;
+            case 'hurt': this.play(100, 'sawtooth', 0.2); break;
+            case 'pickup': this.play(600, 'sine', 0.1); setTimeout(()=>this.play(900, 'sine', 0.1), 50); break;
+            case 'lvl': this.play(440, 'sine', 0.2); setTimeout(()=>this.play(880, 'sine', 0.4), 100); break;
+        }
+    }
+};
+
+// --- EFFECTS: Makes the screen shake when hit ---
+function shake(amt = 4) {
+    shakeTarget.style.transform = `translate(${Math.random()*amt-amt/2}px, ${Math.random()*amt-amt/2}px)`;
+    setTimeout(() => shakeTarget.style.transform = 'translate(0,0)', 50);
+}
+
+// --- MASTER GENERATOR: Decides between Cave or Maze ---
+function generateMap() {
+    // Rules: Floor 1, Floor 5 (Merchant), and Floor 10 (Boss) are ALWAYS Caves
+    const isSpecialFloor = (player.floor === 1 || player.floor === 5 || player.floor === 10);
+    
+    // 50% chance for a maze on any other floor
+    const useMaze = !isSpecialFloor && Math.random() > 0.5;
+
+    if (useMaze) {
+        generateMaze();
+    } else {
+        generateCaves();
+    }
+
+    // Common setup after the shape is carved
+    spawnItemsForFloor(); 
+    spawnEnemiesForFloor(); 
+    updateExploration(); 
+    updateUI();
+}
+
+// --- OPTION A: The Original "Drunken Walk" (Open Rooms) ---
+function generateCaves() {
+    map = Array.from({length: MAP_SIZE}, () => Array(MAP_SIZE).fill(1));
+    explored = Array.from({length: MAP_SIZE}, () => Array(MAP_SIZE).fill(false));
+    enemies = []; items = [];
+    let cx = 1, cy = 1, floorTiles = [{x:1, y:1}];
+    map[cy][cx] = 0;
+    for(let i=0; i<180; i++) {
+        let dir = [{x:1,y:0},{x:-1,y:0},{x:0,y:1},{x:0,y:-1}][Math.floor(Math.random()*4)];
+        let nx = Math.max(1, Math.min(MAP_SIZE-2, cx + dir.x));
+        let ny = Math.max(1, Math.min(MAP_SIZE-2, cy + dir.y));
+        if(map[ny][nx] === 1) { map[ny][nx] = 0; floorTiles.push({x:nx, y:ny}); }
+        cx = nx; cy = ny;
+    }
+    stairsPos = floorTiles[floorTiles.length - 1];
+    player.x = floorTiles[0].x; player.y = floorTiles[0].y;
+}
+
+// --- OPTION B: The "Recursive Backtracker" (Tight Maze) ---
+function generateMaze() {
+    map = Array.from({length: MAP_SIZE}, () => Array(MAP_SIZE).fill(1));
+    explored = Array.from({length: MAP_SIZE}, () => Array(MAP_SIZE).fill(false));
+    enemies = []; items = [];
+    let floorTiles = [];
+
+    function carve(x, y) {
+        map[y][x] = 0;
+        floorTiles.push({x, y});
+        let dirs = [{x:2,y:0},{x:-2,y:0},{x:0,y:2},{x:0,y:-2}].sort(()=>Math.random()-0.5);
+        for (let d of dirs) {
+            let nx = x + d.x, ny = y + d.y;
+            if (nx>0 && nx<MAP_SIZE-1 && ny>0 && ny<MAP_SIZE-1 && map[ny][nx]===1) {
+                map[y+d.y/2][x+d.x/2] = 0;
+                carve(nx, ny);
+            }
+        }
+    }
+    carve(1, 1);
+    player.x = 1; player.y = 1;
+    stairsPos = floorTiles[floorTiles.length - 1];
+}
+
+// --- ITEM SPAWNING: Decides what loot appears ---
+function spawnItemsForFloor() {
+    // SPECIAL CASE: Floor 5 is the Shop (always has full stock)
+    if(player.floor === 5) {
+        let m = stairsPos;
+        items.push(
+            {x:m.x-1, y:m.y, type:'merchant'}, 
+            {x:m.x-1, y:m.y-1, type:'potion', cost:5}, 
+            {x:m.x, y:m.y-1, type:'sword', cost:5}, 
+            {x:m.x+1, y:m.y-1, type:'torch', cost:5}, 
+            {x:m.x+1, y:m.y, type:'shield', cost:5}
+        );
+    } else {
+        // 1. Torches always spawn (essential for mazes)
+        spawnItem('torch'); 
+
+        // 2. RARE GEAR: Only 20% chance for a Sword/Shield to appear on the ground
+        // This makes the Merchant floor much more important!
+        if(Math.random() < 0.20) { 
+            spawnItem('sword'); 
+        }
+        
+        if(Math.random() < 0.20) { 
+            spawnItem('shield'); 
+        }
+    }
+}
+
+// --- INPUT: What happens when you press a key or button ---
+function handleInput(key) {
+    if(player.hp <= 0) return;
+    const k = key.toLowerCase();
+    AudioEngine.init();
+    
+    if(['w','a','s','d','q','e','r','t'].includes(k)) AudioEngine.sfx('ui-click');
+    
+    // Movement
+    if(['w','a','s','d'].includes(k)) tryMove(k);
+    
+    // Toggle Sword (Q)
+    if(k==='q' || k==='x') { 
+        if(inv.swordDur > 0) { player.swdOn = !player.swdOn; AudioEngine.sfx(player.swdOn ? 'sword-on' : 'sword-off'); } 
+    }
+    // Toggle Shield (E)
+    if(k==='e' || k==='y') { 
+        if(inv.shieldDur > 0) { player.shdOn = !player.shdOn; AudioEngine.sfx(player.shdOn ? 'shield-on' : 'shield-off'); } 
+    }
+    // Toggle Torch (R)
+    if(k==='r') { if(inv.torchDur > 0) { torchActive = !torchActive; AudioEngine.sfx('torch'); } }
+    
+    // Use Potion (T)
+    if(k==='t' || k==='b') { if(inv.potions > 0 && player.hp < player.maxHp) { player.hp = Math.min(player.maxHp, player.hp + 8); inv.potions--; AudioEngine.sfx('potion'); } }
+    
+    updateUI();
+}
+
+// --- MOVEMENT & COMBAT: The heart of the gameplay ---
+function tryMove(k) {
+    let dx = 0, dy = 0;
+    if(k==='w') dy = -1; if(k==='s') dy = 1; if(k==='a') dx = -1; if(k==='d') dx = 1;
+    const nx = player.x + dx, ny = player.y + dy;
+    const aliveEnemyIdx = enemies.findIndex(e => e.x === nx && e.y === ny && !e.dead);
+    
+    if(aliveEnemyIdx > -1) { // If there's an enemy, ATTACK it
+        let enemy = enemies[aliveEnemyIdx];
+        let pAtk = player.atk + (player.swdOn ? 4 : 0);
+        enemy.hp -= Math.max(1, pAtk - enemy.def);
+        AudioEngine.sfx(player.swdOn ? 'sword-hit' : 'punch');
+        
+        // DURABILITY: Sword breaks over time
+        if(player.swdOn) {
+            inv.swordDur--;
+            if(inv.swordDur <= 0) { player.swdOn = false; inv.swordDur = 0; AudioEngine.sfx('sword-off'); }
+        }
+
+        enemy.slashTimer = 6; // Show red slash line
+        enemy.slashDir = (slashState % 2 === 0) ? '/' : '\\'; 
+        slashState++; 
+        shake(2);
+        
+        if(enemy.hp <= 0) { 
+            enemy.dead = true; gainXp(enemy.xp); 
+            if(Math.random() < enemy.drop) items.push({x:nx, y:ny, type: Math.random() > 0.1 ? 'coin' : 'potion'}); 
+        }
+    } else if(map[ny][nx] === 0) { // If there is empty floor, MOVE there
+        player.x = nx; player.y = ny;
+        if(torchActive && --inv.torchDur <= 0) { torchActive = false; inv.torchDur = 0; AudioEngine.sfx('torch'); }
+        updateExploration(); 
+    }
+    
+    checkItems(); // Check if standing on a coin/potion
+    if(player.x === stairsPos.x && player.y === stairsPos.y) {
+        if(player.floor === 10) endGame(true); else { player.floor++; generateMap(); AudioEngine.sfx('pickup'); }
+    } else moveEnemies(); // Only monsters move when you move
+    
+    if(player.hp <= 0) endGame(false);
+}
+
+// --- MONSTER AI: Simple "walk toward player" logic ---
+function moveEnemies() {
+    enemies.forEach(e => {
+        if(e.dead) return;
+        let dist = Math.abs(player.x - e.x) + Math.abs(player.y - e.y);
+        
+        if(e.charging) { // If enemy was next to you, they HIT you now
+            if(dist <= 1) {
+                let pDef = player.def + (player.shdOn ? 4 : 0);
+                player.hp -= Math.max(1, e.atk - pDef);
+                
+                // DURABILITY: Shield breaks over time
+                if(player.shdOn) {
+                    inv.shieldDur--;
+                    AudioEngine.sfx('block');
+                    if(inv.shieldDur <= 0) { player.shdOn = false; inv.shieldDur = 0; AudioEngine.sfx('shield-off'); }
+                } else {
+                    AudioEngine.sfx('hurt');
+                }
+                shake(5);
+            }
+            e.charging = false;
+        } else if(dist < 6) { // If enemy sees you, move closer
+            const mx = player.x > e.x ? 1 : player.x < e.x ? -1 : 0, my = player.y > e.y ? 1 : player.y < e.y ? -1 : 0;
+            let targetX = e.x + mx, targetY = e.y + my;
+            let occupied = (player.x === targetX && player.y === targetY) || enemies.some(other => !other.dead && other.x === targetX && other.y === targetY);
+            if(map[targetY][targetX] === 0 && !occupied) { e.x = targetX; e.y = targetY; }
+            if(Math.abs(player.x-e.x) <= 1 && Math.abs(player.y-e.y) <= 1) e.charging = true; // Prep for attack next turn
+        }
+    });
+}
+
+// --- LEVELING UP ---
+function gainXp(amt) {
+    player.xp += amt;
+    if(player.lvl < 7 && player.xp >= XP_TABLE[player.lvl]) {
+        player.xp -= XP_TABLE[player.lvl]; player.lvl++; player.maxHp += 4; player.hp = player.maxHp; player.atk += 1; AudioEngine.sfx('lvl');
+    }
+}
+
+// --- ITEMS: Picking up or buying things ---
+function checkItems() {
+    items = items.filter(i => {
+        if(i.x === player.x && i.y === player.y) {
+            if(i.cost && coins < i.cost) return true; // Can't afford it
+            if(i.cost) coins -= i.cost;
+            if(i.type === 'sword') inv.swordDur = 15; if(i.type === 'shield') inv.shieldDur = 15; if(i.type === 'torch') inv.torchDur = 30; if(i.type === 'potion') inv.potions += 1; if(i.type === 'coin') coins += 1;
+            AudioEngine.sfx('pickup'); return false; // Remove item from floor
+        }
+        return true;
+    });
+}
+
+// --- RENDERING: The "Artist" that draws the pixels every frame ---
+function render() {
+    ctx.fillStyle = '#000'; ctx.fillRect(0,0,320,320); // Clear screen
+    const range = torchActive ? 4 : 1; // Sight distance
+    
+    for(let y=0; y<MAP_SIZE; y++) {
+        for(let x=0; x<MAP_SIZE; x++) {
+            if(!explored[y][x]) continue; // Skip hidden tiles
+            const inSight = Math.abs(player.x-x)<=range && Math.abs(player.y-y)<=range;
+            ctx.fillStyle = map[y][x] === 1 ? (inSight ? '#444' : '#222') : (inSight ? '#111' : '#070707');
+            ctx.fillRect(x*16, y*16, 16, 16);
+        }
+    }
+    
+    // Draw Stairs and Items
+    if(explored[stairsPos.y][stairsPos.x] && Math.abs(player.x-stairsPos.x)<=range && Math.abs(player.y-stairsPos.y)<=range) drawEmoji(stairsPos.x, stairsPos.y, EMOJIS.stairs);
+    items.forEach(i => { if(Math.abs(player.x-i.x)<=range && Math.abs(player.y-i.y)<=range) drawEmoji(i.x, i.y, EMOJIS[i.type]); });
+    
+    // Draw Corpses (Blood puddles)
+    enemies.forEach(e => {
+        if(e.dead && Math.abs(player.x-e.x)<=range && Math.abs(player.y-e.y)<=range) {
+            ctx.fillStyle='rgba(80,0,0,0.4)'; ctx.fillRect(e.x*16, e.y*16, 16, 16);
+        }
+    });
+
+    drawEmoji(player.x, player.y, EMOJIS.player);
+
+    // Draw Living Enemies
+    enemies.forEach(e => {
+        if(e.dead) return;
+        const inSight = Math.abs(player.x-e.x)<=range && Math.abs(player.y-e.y)<=range;
+        if(inSight) {
+            if(e.charging) { ctx.fillStyle='rgba(255,255,255,0.1)'; ctx.fillRect(e.x*16, e.y*16, 16, 16); }
+            drawEmoji(e.x, e.y, e.emoji);
+            if(e.slashTimer > 0) { // Drawing the red slash effect
+                ctx.strokeStyle = '#f00'; ctx.lineWidth = 2; ctx.beginPath();
+                if(e.slashDir === '/') { ctx.moveTo(e.x*16+13, e.y*16+3); ctx.lineTo(e.x*16+3, e.y*16+13); }
+                else { ctx.moveTo(e.x*16+3, e.y*16+3); ctx.lineTo(e.x*16+13, e.y*16+13); }
+                ctx.stroke(); e.slashTimer--;
+            }
+        }
+    });
+}
+
+// --- UTILS: Helper functions to draw text or update the HTML ---
+function drawEmoji(x,y,e){ ctx.font='12px Arial'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillStyle='#fff'; ctx.fillText(e, x*16+8, y*16+9); }
+
+function spawnEnemy(lvl) {
+    let x, y, d = ENEMIES[lvl];
+    do { x = Math.floor(Math.random()*18)+1; y = Math.floor(Math.random()*18)+1; } while (map[y][x]===1 || (Math.abs(x-player.x)<3 && Math.abs(y-player.y)<3));
+    enemies.push({ x, y, ...d, dead:false, charging:false, slashTimer:0, slashDir:'/', emoji: d.icons[Math.floor(Math.random()*d.icons.length)] });
+}
+
+function spawnItem(type) {
+    let x, y; do { x = Math.floor(Math.random()*18)+1; y = Math.floor(Math.random()*18)+1; } while (map[y][x]===1);
+    items.push({x, y, type});
+}
+
+function updateExploration() {
+    const r = torchActive ? 4 : 1;
+    for(let y=player.y-r; y<=player.y+r; y++) for(let x=player.x-r; x<=player.x+r; x++) if(y>=0 && y<20 && x>=0 && x<20) explored[y][x] = true;
+}
+
+function updateUI() {
+    // This updates all the numbers you see on the sides of the screen
+    document.getElementById('lvl').textContent = `✨${player.lvl}`; 
+    document.getElementById('hp').textContent = `❤️${player.hp}`; 
+    document.getElementById('atk').textContent = `🦾️${player.atk + (player.swdOn?4:0)}`; 
+    document.getElementById('def').textContent = `🗿${player.def + (player.shdOn?4:0)}`; 
+    document.getElementById('xp').textContent = player.lvl < 7 ? `${player.xp}/${XP_TABLE[player.lvl]}` : 'MAX'; 
+    document.getElementById('fl').textContent = `🪜${player.floor}`; 
+    document.getElementById('light').textContent = torchActive ? '💡ON' : '💡OFF'; 
+    document.getElementById('h-sw').textContent = `🗡️${inv.swordDur}`; 
+    document.getElementById('h-sh').textContent = `🛡️${inv.shieldDur}`; 
+    document.getElementById('h-tr').textContent = `🔥${inv.torchDur}`; 
+    document.getElementById('h-pt').textContent = `🧪${inv.potions}`; 
+    document.getElementById('coins').textContent = `💰${coins}`;
+}
+
+function endGame(win) {
+    document.getElementById('gameOver').style.display = 'flex'; 
+    document.getElementById('statusTitle').textContent = win ? "CONQUEROR" : "RETIRED"; 
+    document.getElementById('statusTitle').style.color = win ? "#0f0" : "#f00"; 
+    document.getElementById('stats-summary').textContent = `Reached Floor ${player.floor} at Level ${player.lvl}`; 
+    if(!win) AudioEngine.sfx('hurt');
+}
+
+// --- BOOT UP: Start the engine ---
+function loop() { render(); requestAnimationFrame(loop); }
+generateMap(); 
+loop();
+window.addEventListener('keydown', e => handleInput(e.key));
+window.addEventListener('mousedown', () => AudioEngine.init());
+</script>
+</body>
+</html>
