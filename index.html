@@ -3,83 +3,34 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
-<!-- HIDES ADDRESS BAR ON MOBILE INSTALL -->
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="manifest" href="manifest.json">
-
 <title>Bit-Dungeon</title>
 <style>
     *{ box-sizing:border-box; margin:0; padding:0; image-rendering:pixelated; user-select:none; touch-action: none; }
-    
-    body{ 
-        background:#0a0a0a; 
-        color:#fff; 
-        font-family:'Courier New', monospace; 
-        display:flex; 
-        align-items:center; 
-        justify-content:center; 
-        height:100dvh; /* Dynamic viewport height */
-        width:100vw; 
-        overflow:hidden;
-    }
-
-    .game-system { 
-        display: flex; 
-        flex-direction: row; 
-        align-items: center; 
-        justify-content: space-evenly;
-        width: 100%;
-        max-width: 950px;
-        padding: 5px;
-    }
-
-    /* HUD BOXES */
+    body{ background:#0a0a0a; color:#fff; font-family:'Courier New', monospace; display:flex; align-items:center; justify-content:center; height:100dvh; width:100vw; overflow:hidden; }
+    .game-system { display: flex; flex-direction: row; align-items: center; justify-content: space-evenly; width: 100%; max-width: 950px; padding: 5px; }
     .hud-column { display: flex; flex-direction: column; gap: 8px; width: 140px; }
-    .game-title { 
-        font-weight: bold; font-size: 14px; color: #f0f; text-align: center; 
-        background: #111; border: 2px solid #333; padding: 4px; text-shadow: 2px 2px #000;
-    }
+    .game-title { font-weight: bold; font-size: 14px; color: #f0f; text-align: center; background: #111; border: 2px solid #333; padding: 4px; text-shadow: 2px 2px #000; }
     .hud-panel { background: #1a1a1a; border: 2px solid #444; padding: 4px; display: grid; gap: 3px; }
     .hud-item { background: #111; border: 1px solid #333; padding: 3px 5px; display: flex; justify-content: space-between; align-items: center; font-size: 10px; }
     .hud-item b { color: #fff; font-size: 11px; }
-
-    /* CONTROLS */
     .side-controls { display: flex; flex-direction: column; align-items: center; gap: 10px; }
-    .dpad, .diamond { 
-        display: grid; grid-template-columns: repeat(3, 58px); grid-template-rows: repeat(3, 58px); gap: 4px;
-    }
-    .pixel-btn { 
-        background: #222; border: 3px solid #444; color: #eee; 
-        display: flex; align-items: center; justify-content: center; 
-        font-size: 24px; box-shadow: inset -3px -3px #000; border-radius: 8px;
-    }
+    .dpad, .diamond { display: grid; grid-template-columns: repeat(3, 58px); grid-template-rows: repeat(3, 58px); gap: 4px; }
+    .pixel-btn { background: #222; border: 3px solid #444; color: #eee; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: inset -3px -3px #000; border-radius: 8px; cursor: pointer; }
     .pixel-btn:active { background: #555; transform: scale(0.95); }
-    
     .d-up{ grid-column:2; grid-row:1; } .d-left{ grid-column:1; grid-row:2; } .d-right{ grid-column:3; grid-row:2; } .d-down{ grid-column:2; grid-row:3; }
     .btn-swd{ grid-column:1; grid-row:2; } .btn-shd{ grid-column:2; grid-row:1; } .btn-trc{ grid-column:2; grid-row:3; } .btn-pot{ grid-column:3; grid-row:2; }
-
-    /* SCREEN */
     .screen-container { position: relative; border: 6px solid #333; background: #000; display: flex; box-shadow: 0 0 20px rgba(0,0,0,1); }
-    canvas { background: #050505; width: 320px; height: 320px; max-height: 85dvh; }
-    
-    .overlay { 
-        position: absolute; inset: 0; background: rgba(0,0,0,0.95); 
-        display: none; flex-direction: column; align-items: center; justify-content: center; 
-        z-index: 100; text-align: center; padding: 10px;
-    }
-
-    @media (orientation: portrait) {
-        body::after { content: "PLEASE ROTATE YOUR PHONE"; position: fixed; inset: 0; background: #000; color: #fff; display: flex; align-items: center; justify-content: center; z-index: 999; }
-    }
+    canvas { background: #050505; width: 320px; height: 320px; }
+    .overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.95); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 100; text-align: center; padding: 20px; }
+    @media (orientation: portrait) { body::after { content: "PLEASE ROTATE YOUR PHONE"; position: fixed; inset: 0; background: #000; color: #fff; display: flex; align-items: center; justify-content: center; z-index: 999; } }
 </style>
 </head>
 <body>
 
 <div class="game-system">
-    <!-- LEFT SIDE -->
     <div class="side-controls">
         <div class="hud-column">
             <div class="game-title">Bit-Dungeon</div>
@@ -95,25 +46,22 @@
             </div>
         </div>
         <div class="dpad">
-            <div class="pixel-btn d-up" onmousedown="handleInput('w')" ontouchstart="handleInput('w')">▲</div>
-            <div class="pixel-btn d-left" onmousedown="handleInput('a')" ontouchstart="handleInput('a')">◀</div>
-            <div class="pixel-btn d-right" onmousedown="handleInput('d')" ontouchstart="handleInput('d')">▶</div>
-            <div class="pixel-btn d-down" onmousedown="handleInput('s')" ontouchstart="handleInput('s')">▼</div>
+            <div class="pixel-btn d-up" onmousedown="handleInput('w')" ontouchstart="event.preventDefault(); handleInput('w')">▲</div>
+            <div class="pixel-btn d-left" onmousedown="handleInput('a')" ontouchstart="event.preventDefault(); handleInput('a')">◀</div>
+            <div class="pixel-btn d-right" onmousedown="handleInput('d')" ontouchstart="event.preventDefault(); handleInput('d')">▶</div>
+            <div class="pixel-btn d-down" onmousedown="handleInput('s')" ontouchstart="event.preventDefault(); handleInput('s')">▼</div>
         </div>
     </div>
 
-    <!-- CENTER SCREEN -->
     <div class="screen-container" id="shake-target">
         <canvas id="game" width="320" height="320"></canvas>
         <div class="overlay" id="gameOver">
-            <h1 id="statusTitle" style="font-size: 20px; letter-spacing: 2px; color:#f00;">THE DUNGEON CONSUMES YOU</h1>
-            <p id="stats-summary" style="font-size: 11px; margin: 15px; color: #888; font-style: italic;"></p>
-            <p style="font-size: 10px; color: #600; margin-bottom: 20px;">YOU ARE NOW PART OF THE WALLS</p>
-            <button onclick="location.reload()" style="padding:12px 24px; cursor:pointer; background:#200; color:#f00; border:2px solid #600; font-family:monospace; font-weight:bold;">ANOTHER SOUL ENTERS</button>
+            <h1 id="statusTitle" style="font-size: 20px; color:#f00;">THE DUNGEON CONSUMES YOU</h1>
+            <p id="stats-summary" style="font-size: 11px; margin: 15px; color: #888;"></p>
+            <button onclick="location.reload()" style="padding:12px 24px; cursor:pointer; background:#200; color:#f00; border:2px solid #600; font-family:monospace;">ANOTHER SOUL ENTERS</button>
         </div>
     </div>
 
-    <!-- RIGHT SIDE -->
     <div class="side-controls">
         <div class="hud-column">
             <div class="hud-panel">
@@ -128,10 +76,10 @@
             </div>
         </div>
         <div class="diamond">
-            <div class="pixel-btn btn-swd" onclick="handleInput('q')" ontouchstart="handleInput('q')">🗡️</div>
-            <div class="pixel-btn btn-shd" onclick="handleInput('e')" ontouchstart="handleInput('e')">🛡️</div>
-            <div class="pixel-btn btn-trc" onclick="handleInput('r')" ontouchstart="handleInput('r')">🔥</div>
-            <div class="pixel-btn btn-pot" onclick="handleInput('t')" ontouchstart="handleInput('t')">🧪</div>
+            <div class="pixel-btn btn-swd" onclick="handleInput('q')">🗡️</div>
+            <div class="pixel-btn btn-shd" onclick="handleInput('e')">🛡️</div>
+            <div class="pixel-btn btn-trc" onclick="handleInput('r')">🔥</div>
+            <div class="pixel-btn btn-pot" onclick="handleInput('t')">🧪</div>
         </div>
     </div>
 </div>
@@ -143,6 +91,7 @@ const shakeTarget = document.getElementById('shake-target');
 const TILE_SIZE = 16, MAP_SIZE = 20;
 
 const ENEMIES = {
+    // FIXED: Removed text and spaces from the icon list
     lvl1: { hp: 2, atk: 2, def: 0, xp: 1, drop: 0.2, icons: ['🪲','🕷️','🦂'] },
     lvl2: { hp: 10, atk: 3, def: 1, xp: 3, drop: 0.4, icons: ['🦎','🐀','🦇'] },
     lvl3: { hp: 25, atk: 5, def: 2, xp: 8, drop: 0.6, icons: ['🐺','🧟','💀'] }
@@ -160,7 +109,13 @@ let slashState = 0;
 
 const AudioEngine = {
     ctx: null, musicStarted: false,
-    init() { if (!this.ctx) { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); this.startMusic(); } if (this.ctx.state === 'suspended') this.ctx.resume(); },
+    init() { 
+        if (!this.ctx) { 
+            this.ctx = new (window.AudioContext || window.webkitAudioContext)(); 
+            this.startMusic(); 
+        } 
+        if (this.ctx.state === 'suspended') this.ctx.resume(); 
+    },
     startMusic() {
         if (this.musicStarted) return; this.musicStarted = true;
         const playLayer = (freq, vol, speed) => {
@@ -189,6 +144,7 @@ const AudioEngine = {
         source.connect(gain); gain.connect(this.ctx.destination); source.start();
     },
     sfx(type) {
+        if(!this.ctx) return;
         switch(type) {
             case 'sword-on': this.play(800, 'sine', 0.1, 0.1, 1200); break;
             case 'sword-off': this.play(400, 'sine', 0.1, 0.1, 200); break;
@@ -303,67 +259,50 @@ function tryMove(k) {
     let dx=0, dy=0; 
     if(k==='w') dy=-1; if(k==='s') dy=1; 
     if(k==='a') dx=-1; if(k==='d') dx=1;
-    
     const nx = player.x + dx, ny = player.y + dy;
     
-    // 1. Boundary Check
     if(nx < 0 || nx >= MAP_SIZE || ny < 0 || ny >= MAP_SIZE) return;
 
-    // 2. Enemy Collision/Combat Check
     const aliveEnemyIdx = enemies.findIndex(e => e.x === nx && e.y === ny && !e.dead);
-    
     if(aliveEnemyIdx > -1) { 
         let enemy = enemies[aliveEnemyIdx];
         let pAtk = player.atk + (player.swdOn ? 4 : 0);
-        
         enemy.hp -= Math.max(1, pAtk - enemy.def);
         AudioEngine.sfx(player.swdOn ? 'sword-hit' : 'punch');
-        
-        if(player.swdOn) { 
-            inv.swordDur--; 
-            if(inv.swordDur <= 0) { player.swdOn=false; AudioEngine.sfx('sword-off'); } 
-        }
-        
-        enemy.slashTimer = 6; 
-        enemy.slashDir = (slashState++ % 2 === 0) ? '/' : '\\'; 
+        if(player.swdOn) { inv.swordDur--; if(inv.swordDur <= 0) { player.swdOn=false; AudioEngine.sfx('sword-off'); } }
+        enemy.slashTimer = 6; enemy.slashDir = (slashState++ % 2 === 0) ? '/' : '\\'; 
         shake(2);
-
         if(enemy.hp <= 0) { 
-            enemy.dead = true; 
-            gainXp(enemy.xp); 
-            if(Math.random() < enemy.drop) {
-                items.push({x:nx, y:ny, type: Math.random() > 0.1 ? 'coin' : 'potion'});
-            }
+            enemy.dead = true; gainXp(enemy.xp); 
+            if(Math.random() < enemy.drop) items.push({x:nx, y:ny, type: Math.random() > 0.1 ? 'coin' : 'potion'});
         }
-        
-        // CRITICAL: Stop here so player doesn't move into the enemy's spot
-        moveEnemies(); 
-        updateUI();
-        return; 
+        moveEnemies(); updateUI(); return; 
     } 
 
-    // 3. Wall/Movement Check
-    // Only happens if no enemy was hit
     if(map[ny][nx] === 0) { 
-        player.x = nx; 
-        player.y = ny;
-        if(torchActive && --inv.torchDur <= 0) { 
-            torchActive = false; 
-            AudioEngine.sfx('torch'); 
+        player.x = nx; player.y = ny;
+        if(torchActive) {
+            inv.torchDur--;
+            if(inv.torchDur <= 0) { torchActive = false; AudioEngine.sfx('torch'); }
         }
         updateExploration(); 
     }
 
     checkItems();
 
-    // 4. Stairs Check
     if(player.x === stairsPos.x && player.y === stairsPos.y) {
-        if(player.floor === 10) endGame(true); 
-        else { player.floor++; generateMap(); AudioEngine.sfx('pickup'); }
+        if(player.floor === 10) {
+            endGame(true);
+        } else {
+            player.floor++;
+            generateMap();
+            AudioEngine.sfx('pickup');
+            return;
+        }
     } else {
-        moveEnemies(); 
+        moveEnemies();
     }
-    
+
     if(player.hp <= 0) endGame(false);
     updateUI();
 }
@@ -382,7 +321,9 @@ function moveEnemies() {
             } e.charging = false;
         } else if(dist < 6) { 
             const mx = player.x > e.x ? 1 : player.x < e.x ? -1 : 0, my = player.y > e.y ? 1 : player.y < e.y ? -1 : 0;
-            if(map[e.y+my] && map[e.y+my][e.x+mx] === 0) { e.x += mx; e.y += my; }
+            if(map[e.y+my] && map[e.y+my][e.x+mx] === 0 && !enemies.some(en => !en.dead && en.x === e.x+mx && en.y === e.y+my)) { 
+                e.x += mx; e.y += my; 
+            }
             if(Math.abs(player.x-e.x) <= 1 && Math.abs(player.y-e.y) <= 1) e.charging = true; 
         }
     });
@@ -400,7 +341,11 @@ function checkItems() {
         if(i.x === player.x && i.y === player.y) {
             if(i.cost && coins < i.cost) return true; 
             if(i.cost) coins -= i.cost;
-            if(i.type === 'sword') inv.swordDur = 15; if(i.type === 'shield') inv.shieldDur = 15; if(i.type === 'torch') inv.torchDur = 30; if(i.type === 'potion') inv.potions += 1; if(i.type === 'coin') coins += 1;
+            if(i.type === 'sword') inv.swordDur = 15; 
+            if(i.type === 'shield') inv.shieldDur = 15; 
+            if(i.type === 'torch') inv.torchDur = 30; 
+            if(i.type === 'potion') inv.potions += 1; 
+            if(i.type === 'coin') coins += 1;
             AudioEngine.sfx('pickup'); return false; 
         } return true;
     });
@@ -417,15 +362,39 @@ function render() {
             ctx.fillRect(x*16, y*16, 16, 16);
         }
     }
-    if(explored[stairsPos.y][stairsPos.x] && Math.abs(player.x-stairsPos.x)<=range && Math.abs(player.y-stairsPos.y)<=range) drawEmoji(stairsPos.x, stairsPos.y, EMOJIS.stairs);
-    items.forEach(i => { if(Math.abs(player.x-i.x)<=range && Math.abs(player.y-i.y)<=range) drawEmoji(i.x, i.y, EMOJIS[i.type] || '❓'); });
-    enemies.forEach(e => { if(e.dead && Math.abs(player.x-e.x)<=range && Math.abs(player.y-e.y)<=range) { ctx.fillStyle='rgba(80,0,0,0.4)'; ctx.fillRect(e.x*16, e.y*16, 16, 16); } });
+    
+    // Render stairs
+    if(explored[stairsPos.y][stairsPos.x]) {
+        const inSight = Math.abs(player.x-stairsPos.x)<=range && Math.abs(player.y-stairsPos.y)<=range;
+        if(inSight) drawEmoji(stairsPos.x, stairsPos.y, EMOJIS.stairs);
+    }
+
+    // Render Items
+    items.forEach(i => { 
+        if(explored[i.y][i.x] && Math.abs(player.x-i.x)<=range && Math.abs(player.y-i.y)<=range) drawEmoji(i.x, i.y, EMOJIS[i.type] || '❓'); 
+    });
+
+    // Render Enemy remains
+    enemies.forEach(e => { 
+        if(e.dead && explored[e.y][e.x] && Math.abs(player.x-e.x)<=range && Math.abs(player.y-e.y)<=range) { 
+            ctx.fillStyle='rgba(80,0,0,0.4)'; ctx.fillRect(e.x*16, e.y*16, 16, 16); 
+        } 
+    });
+
+    // Render Player
     drawEmoji(player.x, player.y, EMOJIS.player);
+
+    // Render Living Enemies
     enemies.forEach(e => {
         if(!e.dead && Math.abs(player.x-e.x)<=range && Math.abs(player.y-e.y)<=range) {
             if(e.charging) { ctx.fillStyle='rgba(255,255,255,0.1)'; ctx.fillRect(e.x*16, e.y*16, 16, 16); }
             drawEmoji(e.x, e.y, e.emoji);
-            if(e.slashTimer > 0) { ctx.strokeStyle = '#f00'; ctx.lineWidth = 2; ctx.beginPath(); if(e.slashDir === '/') { ctx.moveTo(e.x*16+13, e.y*16+3); ctx.lineTo(e.x*16+3, e.y*16+13); } else { ctx.moveTo(e.x*16+3, e.y*16+3); ctx.lineTo(e.x*16+13, e.y*16+13); } ctx.stroke(); e.slashTimer--; }
+            if(e.slashTimer > 0) { 
+                ctx.strokeStyle = '#f00'; ctx.lineWidth = 2; ctx.beginPath(); 
+                if(e.slashDir === '/') { ctx.moveTo(e.x*16+13, e.y*16+3); ctx.lineTo(e.x*16+3, e.y*16+13); } 
+                else { ctx.moveTo(e.x*16+3, e.y*16+3); ctx.lineTo(e.x*16+13, e.y*16+13); } 
+                ctx.stroke(); e.slashTimer--; 
+            }
         }
     });
 }
@@ -434,7 +403,8 @@ function drawEmoji(x,y,e){ ctx.font='12px Arial'; ctx.textAlign='center'; ctx.te
 
 function spawnEnemy(lvl) {
     let x, y, d = ENEMIES[lvl], attempts = 0;
-    do { x = Math.floor(Math.random()*18)+1; y = Math.floor(Math.random()*18)+1; attempts++; } while ((map[y][x]===1 || (Math.abs(x-player.x)<3 && Math.abs(y-player.y)<3)) && attempts < 100);
+    do { x = Math.floor(Math.random()*18)+1; y = Math.floor(Math.random()*18)+1; attempts++; } 
+    while ((map[y][x]===1 || (Math.abs(x-player.x)<3 && Math.abs(y-player.y)<3)) && attempts < 100);
     if(attempts < 100) enemies.push({ x, y, ...d, hp: d.hp, dead:false, charging:false, slashTimer:0, slashDir:'/', emoji: d.icons[Math.floor(Math.random()*d.icons.length)] });
 }
 
@@ -446,7 +416,11 @@ function spawnItem(type) {
 
 function updateExploration() {
     const r = torchActive ? 4 : 1;
-    for(let y=player.y-r; y<=player.y+r; y++) for(let x=player.x-r; x<=player.x+r; x++) if(y>=0 && y<MAP_SIZE && x>=0 && x<MAP_SIZE) explored[y][x] = true;
+    for(let y=player.y-r; y<=player.y+r; y++) {
+        for(let x=player.x-r; x<=player.x+r; x++) {
+            if(y>=0 && y<MAP_SIZE && x>=0 && x<MAP_SIZE) explored[y][x] = true;
+        }
+    }
 }
 
 function updateUI() {
@@ -474,14 +448,13 @@ function endGame(win) {
         summary.textContent = `You escaped after ${player.floor} floors.`;
     } else {
         title.textContent = "THE DUNGEON CONSUMES YOU"; title.style.color = "#f00";
-        summary.textContent = `Floor ${player.floor} claimed your spirit. Your bones join the pile.`;
+        summary.textContent = `Floor ${player.floor} claimed your spirit.`;
     }
 }
 
 function loop() { render(); requestAnimationFrame(loop); }
 generateMap(); loop();
 window.addEventListener('keydown', e => handleInput(e.key));
-window.addEventListener('mousedown', () => AudioEngine.init());
 </script>
 </body>
 </html>
