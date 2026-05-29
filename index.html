@@ -6,34 +6,72 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Bit-Dungeon</title>
+<title>GridCrypt</title>
 <style>
-    *{ box-sizing:border-box; margin:0; padding:0; image-rendering:pixelated; user-select:none; touch-action: none; }
-    body{ background:#0a0a0a; color:#fff; font-family:'Courier New', monospace; display:flex; align-items:center; justify-content:center; height:100dvh; width:100vw; overflow:hidden; }
-    .game-system { display: flex; flex-direction: row; align-items: center; justify-content: space-evenly; width: 100%; max-width: 950px; padding: 5px; }
-    .hud-column { display: flex; flex-direction: column; gap: 8px; width: 140px; }
-    .game-title { font-weight: bold; font-size: 14px; color: #f0f; text-align: center; background: #111; border: 2px solid #333; padding: 4px; text-shadow: 2px 2px #000; }
-    .hud-panel { background: #1a1a1a; border: 2px solid #444; padding: 4px; display: grid; gap: 3px; }
-    .hud-item { background: #111; border: 1px solid #333; padding: 3px 5px; display: flex; justify-content: space-between; align-items: center; font-size: 10px; }
-    .hud-item b { color: #fff; font-size: 11px; }
-    .side-controls { display: flex; flex-direction: column; align-items: center; gap: 10px; }
-    .dpad, .diamond { display: grid; grid-template-columns: repeat(3, 58px); grid-template-rows: repeat(3, 58px); gap: 4px; }
-    .pixel-btn { background: #222; border: 3px solid #444; color: #eee; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: inset -3px -3px #000; border-radius: 8px; cursor: pointer; }
-    .pixel-btn:active { background: #555; transform: scale(0.95); }
+    * { box-sizing: border-box; margin: 0; padding: 0; image-rendering: pixelated; user-select: none; touch-action: none; }
+    body { background: #060608; color: #00ff66; font-family: 'Courier New', monospace; display: flex; align-items: center; justify-content: center; height: 100dvh; width: 100vw; overflow: hidden; }
+    
+    .game-system { display: flex; flex-direction: row; align-items: center; justify-content: space-evenly; width: 100%; max-width: 1000px; padding: 10px; gap: 15px; }
+    .side-controls { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+    .hud-column { display: flex; flex-direction: column; gap: 8px; width: 150px; }
+    
+    .game-title { font-weight: bold; font-size: 15px; color: #00ff66; text-align: center; background: #0d1117; border: 2px solid #00ff66; padding: 6px; text-shadow: 0 0 5px rgba(0,255,102,0.5); letter-spacing: 2px; box-shadow: 0 0 10px rgba(0,255,102,0.2); }
+    .hud-panel { background: #0d1117; border: 2px solid #22332a; padding: 6px; display: grid; gap: 4px; border-radius: 4px; }
+    .hud-item { background: #07090e; border: 1px solid #16221b; padding: 4px 6px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #88eeaa; }
+    .hud-item b { color: #fff; font-size: 12px; text-shadow: 0 0 3px rgba(255,255,255,0.3); }
+    
+    .dpad, .diamond { display: grid; grid-template-columns: repeat(3, 62px); grid-template-rows: repeat(3, 62px); gap: 6px; }
+    
+    /* Interactive Virtual Keys */
+    .pixel-btn { 
+        position: relative; 
+        background: #111622; 
+        border: 2px solid #00ff66; 
+        color: #00ff66; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        font-size: 22px; 
+        box-shadow: 0 0 8px rgba(0,255,102,0.15), inset 0 0 4px rgba(0,255,102,0.2); 
+        border-radius: 6px; 
+        cursor: pointer; 
+        transition: all 0.05s ease;
+    }
+    .pixel-btn:active { background: #00ff66; color: #000; transform: scale(0.92); box-shadow: 0 0 15px #00ff66; }
+    
+    /* Keycap Label Overlays */
+    .key-hint { 
+        position: absolute; 
+        top: 2px; 
+        right: 4px; 
+        font-size: 9px; 
+        font-weight: bold; 
+        color: #88ffcc; 
+        opacity: 0.7; 
+        font-family: sans-serif;
+    }
+    .pixel-btn:active .key-hint { color: #000; opacity: 0.9; }
+
     .d-up{ grid-column:2; grid-row:1; } .d-left{ grid-column:1; grid-row:2; } .d-right{ grid-column:3; grid-row:2; } .d-down{ grid-column:2; grid-row:3; }
     .btn-swd{ grid-column:1; grid-row:2; } .btn-shd{ grid-column:2; grid-row:1; } .btn-trc{ grid-column:2; grid-row:3; } .btn-pot{ grid-column:3; grid-row:2; }
-    .screen-container { position: relative; border: 6px solid #333; background: #000; display: flex; box-shadow: 0 0 20px rgba(0,0,0,1); }
-    canvas { background: #050505; width: 320px; height: 320px; }
-    .overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.95); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 100; text-align: center; padding: 20px; }
-    @media (orientation: portrait) { body::after { content: "PLEASE ROTATE YOUR PHONE"; position: fixed; inset: 0; background: #000; color: #fff; display: flex; align-items: center; justify-content: center; z-index: 999; } }
+    
+    .screen-container { position: relative; border: 4px solid #00ff66; background: #000; display: flex; box-shadow: 0 0 25px rgba(0,255,102,0.25); border-radius: 4px; }
+    canvas { background: #030406; width: 320px; height: 320px; }
+    
+    .overlay { position: absolute; inset: 0; background: rgba(5,8,12,0.96); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 100; text-align: center; padding: 20px; }
+    .overlay button { padding: 12px 24px; cursor: pointer; background: #1a0000; color: #ff3333; border: 2px solid #aa2222; font-family: monospace; font-weight: bold; box-shadow: 0 0 10px #ff3333; }
+    .overlay button:active { transform: scale(0.95); background: #ff3333; color: #000; }
+
+    @media (orientation: portrait) { body::after { content: "PLEASE ROTATE YOUR PHONE"; position: fixed; inset: 0; background: #060608; color: #00ff66; display: flex; align-items: center; justify-content: center; z-index: 999; font-weight: bold; letter-spacing: 2px; } }
 </style>
 </head>
 <body>
 
 <div class="game-system">
+    <!-- Left Interaction Node -->
     <div class="side-controls">
         <div class="hud-column">
-            <div class="game-title">Bit-Dungeon</div>
+            <div class="game-title">GRIDCRYPT</div>
             <div class="hud-panel">
                 <div class="hud-item">HP <b id="hp">❤️20</b></div>
                 <div class="hud-item">LVL <b id="lvl">✨1</b></div>
@@ -46,22 +84,24 @@
             </div>
         </div>
         <div class="dpad">
-            <div class="pixel-btn d-up" onpointerdown="handleInput('w')">▲</div>
-            <div class="pixel-btn d-left" onpointerdown="handleInput('a')">◀</div>
-            <div class="pixel-btn d-right" onpointerdown="handleInput('d')">▶</div>
-            <div class="pixel-btn d-down" onpointerdown="handleInput('s')">▼</div>
+            <div class="pixel-btn d-up" onpointerdown="handleInput('w')">▲<span class="key-hint">W</span></div>
+            <div class="pixel-btn d-left" onpointerdown="handleInput('a')">◀<span class="key-hint">A</span></div>
+            <div class="pixel-btn d-right" onpointerdown="handleInput('d')">▶<span class="key-hint">D</span></div>
+            <div class="pixel-btn d-down" onpointerdown="handleInput('s')">▼<span class="key-hint">S</span></div>
         </div>
     </div>
 
+    <!-- Core Video Render Context -->
     <div class="screen-container" id="shake-target">
         <canvas id="game" width="320" height="320"></canvas>
         <div class="overlay" id="gameOver">
-            <h1 id="statusTitle" style="font-size: 20px; color:#f00;">THE DUNGEON CONSUMES YOU</h1>
-            <p id="stats-summary" style="font-size: 11px; margin: 15px; color: #888;"></p>
-            <button onclick="location.reload()" style="padding:12px 24px; cursor:pointer; background:#200; color:#f00; border:2px solid #600; font-family:monospace;">ANOTHER SOUL ENTERS</button>
+            <h1 id="statusTitle" style="font-size: 20px; color:#ff3333; letter-spacing: 1px; margin-bottom: 5px;">THE DUNGEON CONSUMES YOU</h1>
+            <p id="stats-summary" style="font-size: 12px; margin: 15px; color: #88aacc; font-family: monospace;"></p>
+            <button onclick="location.reload()">ANOTHER SOUL ENTERS</button>
         </div>
     </div>
 
+    <!-- Right Interaction Node -->
     <div class="side-controls">
         <div class="hud-column">
             <div class="hud-panel">
@@ -76,10 +116,10 @@
             </div>
         </div>
         <div class="diamond">
-            <div class="pixel-btn btn-swd" onpointerdown="handleInput('q')">🗡️</div>
-            <div class="pixel-btn btn-shd" onpointerdown="handleInput('e')">🛡️</div>
-            <div class="pixel-btn btn-trc" onpointerdown="handleInput('r')">🔥</div>
-            <div class="pixel-btn btn-pot" onpointerdown="handleInput('t')">🧪</div>
+            <div class="pixel-btn btn-swd" onpointerdown="handleInput('q')">🗡️<span class="key-hint">Q</span></div>
+            <div class="pixel-btn btn-shd" onpointerdown="handleInput('e')">🛡️<span class="key-hint">E</span></div>
+            <div class="pixel-btn btn-trc" onpointerdown="handleInput('r')">🔥<span class="key-hint">R</span></div>
+            <div class="pixel-btn btn-pot" onpointerdown="handleInput('t')">🧪<span class="key-hint">T</span></div>
         </div>
     </div>
 </div>
@@ -125,7 +165,7 @@ const AudioEngine = {
             lfo.connect(lfoGain); lfoGain.connect(osc.frequency); osc.connect(gain); gain.connect(this.ctx.destination);
             osc.start(); lfo.start();
         };
-        playLayer(60, 0.005, 0.1); playLayer(85, 0.005, 0.15);
+        playLayer(60, 0.003, 0.1); playLayer(85, 0.003, 0.15);
     },
     play(freq, type, dur, vol = 0.1, freqEnd = null) {
         this.init(); const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
@@ -170,7 +210,7 @@ function shake(amt = 4) {
 function generateMap() {
     const isSpecialFloor = (player.floor === 1 || player.floor === 5 || player.floor === 10);
     const useMaze = !isSpecialFloor && Math.random() > 0.5;
-    const themes = ['#2d3b2d', '#3b2d2d', '#3b362d', '#2d323b', '#423d21'];
+    const themes = ['#1a261a', '#261a1a', '#26221a', '#1a1f26', '#2b2715'];
     currentWallColor = themes[Math.floor(Math.random() * themes.length)];
     
     floorTiles = [];
@@ -236,7 +276,7 @@ function spawnItemsForFloor() {
         const placeShopItem = (ox, oy, type, cost) => {
             let nx = m.x + ox, ny = m.y + oy;
             if(nx >= 0 && nx < MAP_SIZE && ny >= 0 && ny < MAP_SIZE) {
-                map[ny][nx] = 0; // Ensure merchant area is reachable
+                map[ny][nx] = 0;
                 items.push({x:nx, y:ny, type, cost});
             }
         };
@@ -334,7 +374,6 @@ function moveEnemies() {
             const mx = player.x > e.x ? 1 : player.x < e.x ? -1 : 0;
             const my = player.y > e.y ? 1 : player.y < e.y ? -1 : 0;
             
-            // Fixed corner clipping: Check both axes separately
             let nextX = e.x, nextY = e.y;
             if (map[e.y][e.x + mx] === 0 && !enemies.some(en => !en.dead && en.x === e.x + mx && en.y === e.y)) {
                 nextX += mx;
@@ -379,7 +418,7 @@ function render() {
         for(let x=0; x<MAP_SIZE; x++) {
             if(!explored[y][x]) continue; 
             const inSight = Math.abs(player.x-x)<=range && Math.abs(player.y-y)<=range;
-            ctx.fillStyle = map[y][x] === 1 ? (inSight ? currentWallColor : '#222') : (inSight ? '#111' : '#070707');
+            ctx.fillStyle = map[y][x] === 1 ? (inSight ? currentWallColor : '#161a22') : (inSight ? '#0c1017' : '#040609');
             ctx.fillRect(x*16, y*16, 16, 16);
         }
     }
@@ -395,7 +434,7 @@ function render() {
 
     enemies.forEach(e => { 
         if(e.dead && explored[e.y][e.x] && Math.abs(player.x-e.x)<=range && Math.abs(player.y-e.y)<=range) { 
-            ctx.fillStyle='rgba(80,0,0,0.4)'; ctx.fillRect(e.x*16, e.y*16, 16, 16); 
+            ctx.fillStyle='rgba(120,10,20,0.35)'; ctx.fillRect(e.x*16, e.y*16, 16, 16); 
         } 
     });
 
@@ -403,10 +442,10 @@ function render() {
 
     enemies.forEach(e => {
         if(!e.dead && Math.abs(player.x-e.x)<=range && Math.abs(player.y-e.y)<=range) {
-            if(e.charging) { ctx.fillStyle='rgba(255,255,255,0.1)'; ctx.fillRect(e.x*16, e.y*16, 16, 16); }
+            if(e.charging) { ctx.fillStyle='rgba(0,255,102,0.12)'; ctx.fillRect(e.x*16, e.y*16, 16, 16); }
             drawEmoji(e.x, e.y, e.emoji);
             if(e.slashTimer > 0) { 
-                ctx.strokeStyle = '#f00'; ctx.lineWidth = 2; ctx.beginPath(); 
+                ctx.strokeStyle = '#ff3333'; ctx.lineWidth = 2; ctx.beginPath(); 
                 if(e.slashDir === '/') { ctx.moveTo(e.x*16+13, e.y*16+3); ctx.lineTo(e.x*16+3, e.y*16+13); } 
                 else { ctx.moveTo(e.x*16+3, e.y*16+3); ctx.lineTo(e.x*16+13, e.y*16+13); } 
                 ctx.stroke(); e.slashTimer--; 
@@ -416,7 +455,13 @@ function render() {
     });
 }
 
-function drawEmoji(x,y,e){ ctx.font='12px Arial'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillStyle='#fff'; ctx.fillText(e, x*16+8, y*16+9); }
+function drawEmoji(x,y,e){ 
+    ctx.font='11px Arial'; 
+    ctx.textAlign='center'; 
+    ctx.textBaseline='middle'; 
+    ctx.fillStyle='#fff'; 
+    ctx.fillText(e, x*16 + 8, y*16 + 8); 
+}
 
 function spawnEnemy(lvl) {
     let d = ENEMIES[lvl];
@@ -463,10 +508,10 @@ function endGame(win) {
     const title = document.getElementById('statusTitle');
     overlay.style.display = 'flex'; 
     if (win) {
-        title.textContent = "THE LIGHT REACHED"; title.style.color = "#0f0";
+        title.textContent = "THE LIGHT REACHED"; title.style.color = "#00ff66";
         summary.textContent = `You escaped after ${player.floor} floors.`;
     } else {
-        title.textContent = "THE DUNGEON CONSUMES YOU"; title.style.color = "#f00";
+        title.textContent = "THE DUNGEON CONSUMES YOU"; title.style.color = "#ff3333";
         summary.textContent = `Floor ${player.floor} claimed your spirit.`;
     }
     render();
