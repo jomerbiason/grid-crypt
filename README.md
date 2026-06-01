@@ -5,7 +5,7 @@
 GridCrypt is a haunting, 8-bit procedural rogue-lite built for the modern web. Designed with a **Mobile-First Landscape** approach, it combines tactical grid-based movement with a dark, immersive atmosphere where every failure contributes to the crypt's history.
 
 ## 🕹️ Play Now
-**Live Demo:** [jomerbiason.github.io/bit-dungeon](https://jomerbiason.github.io/bit-dungeon/)
+**Live Demo:** [jomerbiason.github.io/grid-crypt](https://jomerbiason.github.io/grid-crypt/)
 
 ---
 
