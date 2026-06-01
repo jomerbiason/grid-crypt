@@ -1,47 +1,58 @@
-# 🗺️ GridCrypt
+# ⬛ GridCrypt
 
-**"The grid does not just trap; it absorbs."**
-
-GridCrypt is a haunting, 8-bit procedural rogue-lite built for the modern web. Designed with a **Mobile-First Landscape** approach, it combines tactical grid-based movement with a dark, immersive atmosphere where every failure contributes to the crypt's history.
-
-## 🕹️ Play Now
-**Live Demo:** [jomerbiason.github.io/grid-crypt](https://jomerbiason.github.io/grid-crypt/)
+**GridCrypt** is a high-intensity, terminal-inspired roguelike dungeon crawler built from the ground up for the mobile web. Featuring procedural generation, a custom Web Audio synthesizer, and a tactile virtual interface, it offers a retro-futuristic survival experience directly in your browser.
 
 ---
 
-## 💀 The Lore
-There are no winners here. When your light fades and your strength fails, you aren't simply defeated—**THE CRYPT CONSUMES YOU.** Your spirit becomes locked within the coordinates, and your bones join the stone masonry of the deep. Every time you restart, you are merely the *next* soul brave (or foolish) enough to enter the grid.
+## 🚀 Play Now
+
+👉 **[Enter the Dungeon](https://jomerbiason.github.io/gridcrypt/)** *(Update this link to your actual deployment)*
 
 ---
 
-## 📱 Optimized for Landscape Mobile
-This game is designed to be played horizontally on mobile devices, mimicking the feel of a classic handheld console.
+## 🎮 Core Gameplay
 
-### Left Thumb: Navigation
-* **D-Pad:** Move your explorer through the procedural floor.
-
-### Right Thumb: Actions
-* 🗡️ **Sword:** Toggle for +4 ATK (Drains durability per hit).
-* 🛡️ **Shield:** Toggle for +4 DEF (Drains durability when hit).
-* 🔥 **Torch:** Toggle to see 4 tiles away (Drains durability per step).
-* 🧪 **Potion:** Consume to restore 8 HP.
+* **Procedural Depths:** Every floor is dynamically generated using a hybrid Maze/Cave algorithm, ensuring that no two runs are identical.
+* **Tactical Survival:** Manage your resources—Torch (light radius), Sword (durability), Shield (defense), and Potions (health)—to navigate increasingly dangerous floors.
+* **Dynamic HUD:** Real-time state tracking of your HP, Level, XP, and equipment status.
+* **Touch-Optimized Interface:** Designed for mobile play, featuring a virtual D-Pad and a "Diamond" action button layout for ergonomic interaction.
 
 ---
 
-## 🕯️ Key Features
-* **Strict Grid Collision:** True turn-based positioning. Enemies cannot phase through or step onto the main character, and the player cannot bypass monsters without initiating combat. 
-* **Procedural Generation:** No two runs are the same. Explore crypt structures, caves, and mazes generated on the fly.
-* **Atmospheric Audio:** Real-time 8-bit synthesized music and SFX using the Web Audio API.
-* **Leveling System:** Gain XP from combat to increase your Max HP and base damage.
-* **The Merchant:** Encounter the Merchant on Floor 5 to trade found coins for vital supplies.
-* **Zero-Asset Design:** The entire game—logic, graphics (emojis/canvas), and sound—is contained in a single HTML file.
+## 🛠 Engineering Stack
+
+| Layer | Technology |
+| :--- | :--- |
+| **View Engine** | HTML5 Canvas API |
+| **Logic** | Vanilla ES6+ JavaScript |
+| **Audio** | Custom Web Audio API Synthesizer (No external assets) |
+| **Responsiveness** | Dynamic viewport units (`dvh`/`vw`), touch-event hooks |
 
 ---
 
-## 🚀 Installation & Deployment
-Since GridCrypt is built with vanilla HTML5 and JavaScript, it requires no build process.
+## ⚡ Technical Highlights
 
-1.  **Clone the repo:**
-    ```bash
-    git clone [https://github.com/jomerbiason/grid-crypt.git](https://github.com/jomerbiason/grid-crypt.git)
-    ```
+* **Procedural Audio Engine:** The game uses a custom-built Web Audio synthesizer to generate all sound effects and ambient tracks procedurally. No external files are loaded, keeping the initial footprint minimal.
+* **Ghost-Click Mitigation:** Built with `touch-action: none` and specialized pointer event handling to prevent browser interference on mobile devices.
+* **Memory-Efficient Rendering:** Optimized frame loop using CSS `pixelated` rendering and intelligent exploration masking to handle high-density dungeon layouts.
+* **Viewport Lock:** Forced landscape orientation logic via CSS ensures the UI remains stable and usable on mobile devices.
+
+---
+
+## 🕹 Controls
+
+| Action | Keyboard | Interface |
+| :--- | :--- | :--- |
+| **Move** | W, A, S, D | D-Pad |
+| **Attack** | Q | Sword (🗡️) |
+| **Defend** | E | Shield (🛡️) |
+| **Torch** | R | Torch (🔥) |
+| **Heal** | T | Potion (🧪) |
+
+---
+
+## 📂 Repository Architecture
+
+```text
+├── index.html        # Single-file architecture (Markup, CSS, & Game Engine)
+└── README.md         # Documentation
