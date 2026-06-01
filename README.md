@@ -43,5 +43,5 @@ Since GridCrypt is built with vanilla HTML5 and JavaScript, it requires no build
 
 1.  **Clone the repo:**
     ```bash
-    git clone [https://github.com/jomerbiason/bit-dungeon.git](https://github.com/jomerbiason/bit-dungeon.git)
+    git clone [https://github.com/jomerbiason/grid-crypt.git](https://github.com/jomerbiason/grid-crypt.git)
     ```
