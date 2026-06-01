@@ -6,7 +6,7 @@
 
 ## 🚀 Play Now
 
-👉 **[Enter the Dungeon](https://jomerbiason.github.io/gridcrypt/)** *(Update this link to your actual deployment)*
+👉 **[Enter the Dungeon](https://jomerbiason.github.io/gridcrypt/)**
 
 ---
 
