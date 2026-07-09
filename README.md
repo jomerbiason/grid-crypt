@@ -54,5 +54,14 @@
 ## 📂 Repository Architecture
 
 ```text
-├── index.html        # Single-file architecture (Markup, CSS, & Game Engine)
-└── README.md         # Documentation
+├── index.html          # Single-file architecture (Markup, CSS, & Game Engine)
+├── docs/
+│   └── ARCHITECTURE.md # Technical design & structure
+├── ROADMAP.md           # Planned features & milestones
+├── CHANGELOG.md          # Version history (Keep a Changelog + SemVer)
+└── README.md            # Documentation
+```
+
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for technical design details,
+[ROADMAP.md](ROADMAP.md) for what's planned next, and
+[CHANGELOG.md](CHANGELOG.md) for version history.
