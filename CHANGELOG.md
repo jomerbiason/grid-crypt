@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Start/pause overlays, mute toggle, and toast notifications.
+- Expanded Title screen menu with Play, Stats, Settings, and Credits.
+- Pause menu with Resume, Restart, Settings, and Main Menu options, with origin-aware back navigation.
+- Settings screen: independent music/SFX volume sliders, mute toggle, and a controls legend.
+- Credits screen.
+- Persistent Stats screen (deepest floor, highest level, most kills, most coins, runs played, victories) tracked via `localStorage` across runs.
+- Project documentation: `CHANGELOG.md`, `ROADMAP.md`, `docs/ARCHITECTURE.md`.
 
 ## [0.1.0] - 2026-05-29
 

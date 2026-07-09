@@ -63,8 +63,23 @@
     .overlay button { padding: 12px 24px; cursor: pointer; background: #1a0000; color: #ff3333; border: 2px solid #aa2222; font-family: monospace; font-weight: bold; box-shadow: 0 0 10px #ff3333; }
     .overlay button:active { transform: scale(0.95); background: #ff3333; color: #000; }
     .overlay.start-overlay { display: flex; background: rgba(3,5,7,0.98); }
-    .overlay.start-overlay button, .overlay#pauseScreen button { background: #001a08; color: #00ff66; border-color: #00ff66; box-shadow: 0 0 10px #00ff66; }
+    .overlay.start-overlay button, .overlay#pauseScreen button, .overlay#settingsScreen button, .overlay#creditsScreen button, .overlay#statsScreen button { background: #001a08; color: #00ff66; border-color: #00ff66; box-shadow: 0 0 10px #00ff66; }
     #toast { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); border: 1px solid #00ff66; color: #00ff66; font-size: 10px; padding: 5px 10px; border-radius: 4px; opacity: 0; transition: opacity 0.2s ease; pointer-events: none; white-space: nowrap; z-index: 60; letter-spacing: 0.5px; }
+
+    .menu-list { display: flex; flex-direction: column; gap: 10px; width: 220px; }
+    .menu-list button { width: 100%; }
+    .screen-title { font-size: 18px; letter-spacing: 2px; margin-bottom: 16px; text-shadow: 0 0 8px rgba(0,255,102,0.5); }
+    .settings-row { width: 240px; text-align: left; margin-bottom: 14px; }
+    .settings-row label { display: flex; justify-content: space-between; font-size: 11px; color: #88eeaa; margin-bottom: 4px; }
+    .settings-row input[type="range"] { width: 100%; accent-color: #00ff66; }
+    .controls-legend { width: 240px; text-align: left; font-size: 10px; color: #88eeaa; line-height: 1.8; margin: 10px 0 16px; border-top: 1px solid #22332a; padding-top: 10px; }
+    .controls-legend b { color: #fff; display: inline-block; width: 60px; }
+    .credits-text { font-size: 11px; color: #88eeaa; max-width: 250px; line-height: 1.9; margin-bottom: 16px; }
+    .credits-text b { color: #fff; }
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 240px; margin-bottom: 16px; }
+    .stats-grid .stat-box { background: #0d1117; border: 1px solid #22332a; padding: 8px; border-radius: 4px; }
+    .stats-grid .stat-box .label { font-size: 9px; color: #88eeaa; letter-spacing: 1px; }
+    .stats-grid .stat-box .value { font-size: 16px; color: #fff; text-shadow: 0 0 4px rgba(255,255,255,0.3); }
     @media (orientation: portrait) { body::after { content: "PLEASE ROTATE YOUR PHONE"; position: fixed; inset: 0; background: #060608; color: #00ff66; display: flex; align-items: center; justify-content: center; z-index: 999; font-weight: bold; letter-spacing: 2px; } }
 </style>
 </head>
@@ -109,18 +124,82 @@
                 Gear wears out with use. The torch reveals more of the map but burns fuel. A merchant deals in coin on floor 5.
             </p>
             <p id="bestFloorText" style="font-size: 11px; color:#ffcc44; margin-bottom: 14px;"></p>
-            <button onclick="startGame()">ENTER THE DUNGEON</button>
+            <div class="menu-list">
+                <button onclick="startGame()">ENTER THE DUNGEON</button>
+                <button onclick="openMenu('statsScreen','title')">STATS</button>
+                <button onclick="openMenu('settingsScreen','title')">SETTINGS</button>
+                <button onclick="openMenu('creditsScreen','title')">CREDITS</button>
+            </div>
         </div>
 
         <div class="overlay" id="pauseScreen">
-            <h1 style="font-size: 18px; color:#ffcc44; letter-spacing: 2px; margin-bottom: 16px;">PAUSED</h1>
-            <button onclick="handleInput('p')">RESUME</button>
+            <h1 class="screen-title" style="color:#ffcc44;">PAUSED</h1>
+            <div class="menu-list">
+                <button onclick="handleInput('p')">RESUME</button>
+                <button onclick="restartGame()">RESTART</button>
+                <button onclick="openMenu('settingsScreen','pause')">SETTINGS</button>
+                <button onclick="returnToMainMenu()">MAIN MENU</button>
+            </div>
+        </div>
+
+        <div class="overlay" id="settingsScreen">
+            <h1 class="screen-title" style="color:#00ff66;">SETTINGS</h1>
+            <div class="settings-row">
+                <label><span>MUSIC VOLUME</span><span id="musicVolLabel">70%</span></label>
+                <input type="range" id="musicVolSlider" min="0" max="100" value="70" oninput="setMusicVol(this.value)">
+            </div>
+            <div class="settings-row">
+                <label><span>SFX VOLUME</span><span id="sfxVolLabel">70%</span></label>
+                <input type="range" id="sfxVolSlider" min="0" max="100" value="70" oninput="setSfxVol(this.value)">
+            </div>
+            <div class="settings-row" style="display:flex; justify-content:space-between; align-items:center;">
+                <label style="margin-bottom:0;"><span>MUTE ALL</span></label>
+                <input type="checkbox" id="muteCheckbox" onchange="toggleMute()">
+            </div>
+            <div class="controls-legend">
+                <div><b>WASD</b> Move</div>
+                <div><b>Q</b> Toggle Sword</div>
+                <div><b>E</b> Toggle Shield</div>
+                <div><b>R</b> Toggle Torch</div>
+                <div><b>T</b> Drink Potion</div>
+                <div><b>P</b> Pause</div>
+                <div><b>M</b> Mute</div>
+            </div>
+            <button onclick="closeMenu()">BACK</button>
+        </div>
+
+        <div class="overlay" id="creditsScreen">
+            <h1 class="screen-title" style="color:#00ff66;">CREDITS</h1>
+            <p class="credits-text">
+                <b>GridCrypt</b><br>
+                Designed &amp; developed solo by <b>jomerbiason</b>.<br><br>
+                Built with vanilla JavaScript &amp; the HTML5 Canvas API.<br>
+                Music &amp; sound effects generated procedurally with the Web Audio API — no external audio assets.<br><br>
+                <a href="https://github.com/jomerbiason/grid-crypt" target="_blank" rel="noopener" style="color:#88eeaa;">github.com/jomerbiason/grid-crypt</a>
+            </p>
+            <button onclick="closeMenu()">BACK</button>
+        </div>
+
+        <div class="overlay" id="statsScreen">
+            <h1 class="screen-title" style="color:#00ff66;">STATS</h1>
+            <div class="stats-grid">
+                <div class="stat-box"><div class="label">DEEPEST FLOOR</div><div class="value" id="stat-bestFloor">0</div></div>
+                <div class="stat-box"><div class="label">HIGHEST LEVEL</div><div class="value" id="stat-bestLevel">0</div></div>
+                <div class="stat-box"><div class="label">MOST KILLS</div><div class="value" id="stat-bestKills">0</div></div>
+                <div class="stat-box"><div class="label">MOST COINS</div><div class="value" id="stat-bestCoins">0</div></div>
+                <div class="stat-box"><div class="label">RUNS PLAYED</div><div class="value" id="stat-runs">0</div></div>
+                <div class="stat-box"><div class="label">VICTORIES</div><div class="value" id="stat-victories">0</div></div>
+            </div>
+            <button onclick="closeMenu()">BACK</button>
         </div>
 
         <div class="overlay" id="gameOver">
             <h1 id="statusTitle" style="font-size: 20px; color:#ff3333; letter-spacing: 1px; margin-bottom: 5px;">THE DUNGEON CONSUMES YOU</h1>
             <p id="stats-summary" style="font-size: 12px; margin: 15px; color: #88aacc; font-family: monospace; line-height: 1.6;"></p>
-            <button onclick="location.reload()">ANOTHER SOUL ENTERS</button>
+            <div class="menu-list">
+                <button onclick="location.reload()">ANOTHER SOUL ENTERS</button>
+                <button onclick="openMenu('statsScreen','gameOver')">STATS</button>
+            </div>
         </div>
     </div>
     <!-- Right Interaction Node -->
@@ -166,20 +245,69 @@ let slashState = 0;
 let started = false, paused = false, muted = false, kills = 0;
 let bestFloor = parseInt(localStorage.getItem('gridcrypt_best') || '0', 10);
 let toastTimer = null;
+let menuStack = [];
+
+const DEFAULT_SETTINGS = { musicVol: 70, sfxVol: 70, muted: false };
+let settings = Object.assign({}, DEFAULT_SETTINGS, JSON.parse(localStorage.getItem('gridcrypt_settings') || '{}'));
+muted = settings.muted;
+
+function saveSettings() { localStorage.setItem('gridcrypt_settings', JSON.stringify(settings)); }
+
+const DEFAULT_STATS = { bestFloor: 0, bestLevel: 0, bestKills: 0, bestCoins: 0, runs: 0, victories: 0 };
+let stats = Object.assign({}, DEFAULT_STATS, JSON.parse(localStorage.getItem('gridcrypt_stats') || '{}'));
+
+function saveStats() { localStorage.setItem('gridcrypt_stats', JSON.stringify(stats)); }
+
+function renderStatsScreen() {
+    document.getElementById('stat-bestFloor').textContent = stats.bestFloor;
+    document.getElementById('stat-bestLevel').textContent = stats.bestLevel;
+    document.getElementById('stat-bestKills').textContent = stats.bestKills;
+    document.getElementById('stat-bestCoins').textContent = stats.bestCoins;
+    document.getElementById('stat-runs').textContent = stats.runs;
+    document.getElementById('stat-victories').textContent = stats.victories;
+}
+
+function openMenu(screenId, origin) {
+    if (origin === 'title') document.getElementById('startScreen').style.display = 'none';
+    menuStack.push(origin);
+    if (screenId === 'statsScreen') renderStatsScreen();
+    document.getElementById(screenId).style.display = 'flex';
+    AudioEngine.sfx('ui-click');
+}
+
+function closeMenu() {
+    const opened = document.querySelectorAll('.overlay[style*="flex"]');
+    opened.forEach(el => { if (['settingsScreen','creditsScreen','statsScreen'].includes(el.id)) el.style.display = 'none'; });
+    const origin = menuStack.pop();
+    if (origin === 'title') document.getElementById('startScreen').style.display = 'flex';
+    AudioEngine.sfx('ui-click');
+}
+
+function restartGame() { location.reload(); }
+function returnToMainMenu() { location.reload(); }
 
 const AudioEngine = {
-    ctx: null, musicStarted: false, masterGain: null,
+    ctx: null, musicStarted: false, musicGain: null, sfxGain: null,
     init() {
         if (!this.ctx) {
             this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-            this.masterGain = this.ctx.createGain();
-            this.masterGain.gain.setValueAtTime(muted ? 0 : 1, this.ctx.currentTime);
-            this.masterGain.connect(this.ctx.destination);
+            this.musicGain = this.ctx.createGain();
+            this.sfxGain = this.ctx.createGain();
+            this.musicGain.connect(this.ctx.destination);
+            this.sfxGain.connect(this.ctx.destination);
+            this.applyVolumes();
             this.startMusic();
         }
         if (this.ctx.state === 'suspended') this.ctx.resume();
     },
-    setMuted(m) { if (this.masterGain) this.masterGain.gain.setValueAtTime(m ? 0 : 1, this.ctx.currentTime); },
+    applyVolumes() {
+        if (!this.ctx) return;
+        const m = muted ? 0 : settings.musicVol / 100;
+        const s = muted ? 0 : settings.sfxVol / 100;
+        this.musicGain.gain.setValueAtTime(m, this.ctx.currentTime);
+        this.sfxGain.gain.setValueAtTime(s, this.ctx.currentTime);
+    },
+    setMuted(m) { this.applyVolumes(); },
     startMusic() {
         if (this.musicStarted) return; this.musicStarted = true;
         const playLayer = (freq, vol, speed) => {
@@ -187,7 +315,7 @@ const AudioEngine = {
             osc.type = 'triangle'; osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
             lfo.type = 'sine'; lfo.frequency.setValueAtTime(speed, this.ctx.currentTime);
             lfoGain.gain.setValueAtTime(freq * 0.02, this.ctx.currentTime); gain.gain.setValueAtTime(vol, this.ctx.currentTime);
-            lfo.connect(lfoGain); lfoGain.connect(osc.frequency); osc.connect(gain); gain.connect(this.masterGain);
+            lfo.connect(lfoGain); lfoGain.connect(osc.frequency); osc.connect(gain); gain.connect(this.musicGain);
             osc.start(); lfo.start();
         };
         playLayer(60, 0.003, 0.1); playLayer(85, 0.003, 0.15);
@@ -197,7 +325,7 @@ const AudioEngine = {
         osc.type = type; osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
         if (freqEnd) osc.frequency.exponentialRampToValueAtTime(freqEnd, this.ctx.currentTime + dur);
         gain.gain.setValueAtTime(vol, this.ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + dur);
-        osc.connect(gain); gain.connect(this.masterGain); osc.start(); osc.stop(this.ctx.currentTime + dur);
+        osc.connect(gain); gain.connect(this.sfxGain); osc.start(); osc.stop(this.ctx.currentTime + dur);
     },
     noise(dur, vol = 0.05) {
         this.init(); const bufferSize = this.ctx.sampleRate * dur; const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
@@ -205,7 +333,7 @@ const AudioEngine = {
         const source = this.ctx.createBufferSource(); source.buffer = buffer;
         const gain = this.ctx.createGain(); gain.gain.setValueAtTime(vol, this.ctx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + dur);
-        source.connect(gain); gain.connect(this.masterGain); source.start();
+        source.connect(gain); gain.connect(this.sfxGain); source.start();
     },
     sfx(type) {
         if(!this.ctx) return;
@@ -257,8 +385,24 @@ function togglePause() {
 
 function toggleMute() {
     muted = !muted;
+    settings.muted = muted; saveSettings();
     AudioEngine.setMuted(muted);
     document.getElementById('muteBtn').textContent = muted ? '🔇' : '🔊';
+    const cb = document.getElementById('muteCheckbox');
+    if (cb) cb.checked = muted;
+}
+
+function setMusicVol(v) {
+    settings.musicVol = parseInt(v, 10); saveSettings();
+    document.getElementById('musicVolLabel').textContent = `${v}%`;
+    AudioEngine.applyVolumes();
+}
+
+function setSfxVol(v) {
+    settings.sfxVol = parseInt(v, 10); saveSettings();
+    document.getElementById('sfxVolLabel').textContent = `${v}%`;
+    AudioEngine.applyVolumes();
+    AudioEngine.sfx('ui-click');
 }
 
 function generateMap() {
@@ -544,6 +688,13 @@ function endGame(win) {
     if(isGameOver) return;
     isGameOver = true;
     if(player.floor > bestFloor) { bestFloor = player.floor; localStorage.setItem('gridcrypt_best', String(bestFloor)); }
+    stats.runs++;
+    if (win) stats.victories++;
+    stats.bestFloor = Math.max(stats.bestFloor, player.floor);
+    stats.bestLevel = Math.max(stats.bestLevel, player.lvl);
+    stats.bestKills = Math.max(stats.bestKills, kills);
+    stats.bestCoins = Math.max(stats.bestCoins, coins);
+    saveStats();
     const overlay = document.getElementById('gameOver');
     const summary = document.getElementById('stats-summary');
     const title = document.getElementById('statusTitle');
@@ -558,6 +709,12 @@ function endGame(win) {
 }
 
 document.getElementById('bestFloorText').textContent = bestFloor > 0 ? `Deepest descent so far: Floor ${bestFloor}` : 'No previous descent recorded.';
+document.getElementById('musicVolSlider').value = settings.musicVol;
+document.getElementById('musicVolLabel').textContent = `${settings.musicVol}%`;
+document.getElementById('sfxVolSlider').value = settings.sfxVol;
+document.getElementById('sfxVolLabel').textContent = `${settings.sfxVol}%`;
+document.getElementById('muteCheckbox').checked = muted;
+document.getElementById('muteBtn').textContent = muted ? '🔇' : '🔊';
 window.addEventListener('keydown', e => handleInput(e.key));
 </script>
 </body>

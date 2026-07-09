@@ -18,6 +18,8 @@ no build step or bundler required.
 | **Simulation** | `moveEnemies()`, `gainXp(amt)`, `checkItems()`, `updateExploration()` |
 | **Rendering** | `render()`, `drawEmoji(x, y, e)`, `updateUI()` |
 | **Feedback/FX** | `shake(amt)`, `showToast(msg)`, `toggleMute()` |
+| **Menu navigation** | `openMenu(screenId, origin)`, `closeMenu()`, `restartGame()`, `returnToMainMenu()` |
+| **Persistence** | `saveSettings()`/`saveStats()` — music/SFX volume, mute state, and best-run stats (deepest floor, highest level, most kills, most coins, runs played, victories) via `localStorage` |
 
 The render loop draws directly to an HTML5 Canvas; audio is generated
 procedurally through the Web Audio API (no external sound assets).
