@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Credits screen.
 - Persistent Stats screen (deepest floor, highest level, most kills, most coins, runs played, victories) tracked via `localStorage` across runs.
 - Project documentation: `CHANGELOG.md`, `ROADMAP.md`, `docs/ARCHITECTURE.md`.
+- Game theme selector in Settings — **Emoji** (default), **Terminal** (classic monochrome-green ASCII roguelike), and **ASCII** (colorized ASCII roguelike, amber UI accent) — switches entity glyphs, dungeon wall palette, and font live, persisted via `localStorage`.
 
 ## [0.1.0] - 2026-05-29
 

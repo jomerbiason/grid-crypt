@@ -39,7 +39,7 @@ export function spawnEnemy(lvl) {
     let validTiles = floorTiles.filter(t => Math.max(Math.abs(t.x-player.x), Math.abs(t.y-player.y)) > 4);
     if(validTiles.length === 0) validTiles = floorTiles;
     let t = validTiles[Math.floor(Math.random()*validTiles.length)];
-    enemies.push({ x: t.x, y: t.y, ...d, hp: d.hp, dead:false, charging:false, slashTimer:0, slashDir:'/', emoji: d.icons[Math.floor(Math.random()*d.icons.length)] });
+    enemies.push({ x: t.x, y: t.y, ...d, hp: d.hp, dead:false, charging:false, slashTimer:0, slashDir:'/', lvlKey: lvl, iconIdx: Math.floor(Math.random()*3) });
 }
 
 export function spawnItem(type) {

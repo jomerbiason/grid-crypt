@@ -1,5 +1,5 @@
 import { state } from '../core/state.js';
-import { MAP_SIZE } from '../core/constants.js';
+import { MAP_SIZE, THEMES } from '../core/constants.js';
 import { spawnItemsForFloor, spawnEnemiesForFloor } from '../entities/spawn.js';
 import { updateExploration, render } from './render.js';
 import { updateUI } from '../ui/hud.js';
@@ -8,8 +8,8 @@ export function generateMap() {
     const { player } = state;
     const isSpecialFloor = (player.floor === 1 || player.floor === 5 || player.floor === 10);
     const useMaze = !isSpecialFloor && Math.random() > 0.5;
-    const themes = ['#1a261a', '#261a1a', '#26221a', '#1a1f26', '#2b2715'];
-    state.currentWallColor = themes[Math.floor(Math.random() * themes.length)];
+    const wallPalette = (THEMES[state.settings.theme] || THEMES.emoji).wallPalette;
+    state.currentWallColor = wallPalette[Math.floor(Math.random() * wallPalette.length)];
 
     state.floorTiles = [];
     if (useMaze) generateMaze(); else generateCaves();

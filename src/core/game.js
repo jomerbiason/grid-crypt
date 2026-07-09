@@ -1,7 +1,8 @@
 import { state, saveStats, saveBestFloor, saveSettings } from './state.js';
+import { THEMES } from './constants.js';
 import { AudioEngine } from '../audio/AudioEngine.js';
 import { generateMap } from '../world/mapgen.js';
-import { showToast } from '../ui/hud.js';
+import { showToast, syncThemeUI } from '../ui/hud.js';
 import { render } from '../world/render.js';
 
 export function startGame() {
@@ -38,6 +39,13 @@ export function setSfxVol(v) {
     document.getElementById('sfxVolLabel').textContent = `${v}%`;
     AudioEngine.applyVolumes();
     AudioEngine.sfx('ui-click');
+}
+
+export function setTheme(themeKey) {
+    if (!THEMES[themeKey]) return;
+    state.settings.theme = themeKey; saveSettings();
+    syncThemeUI();
+    if (state.started) render();
 }
 
 export function endGame(win) {

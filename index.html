@@ -8,14 +8,16 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>GridCrypt</title>
 <style>
+    :root { --accent: #00ff66; }
+    body.theme-ascii { --accent: #ffb000; }
     * { box-sizing: border-box; margin: 0; padding: 0; image-rendering: pixelated; user-select: none; touch-action: none; }
-    body { background: #060608; color: #00ff66; font-family: 'Courier New', monospace; display: flex; align-items: center; justify-content: center; height: 100dvh; width: 100vw; overflow: hidden; }
+    body { background: #060608; color: var(--accent); font-family: 'Courier New', monospace; display: flex; align-items: center; justify-content: center; height: 100dvh; width: 100vw; overflow: hidden; }
 
     .game-system { display: flex; flex-direction: row; align-items: center; justify-content: space-evenly; width: 100%; max-width: 1000px; padding: 10px; gap: 15px; }
     .side-controls { display: flex; flex-direction: column; align-items: center; gap: 14px; }
     .hud-column { display: flex; flex-direction: column; gap: 8px; width: 150px; }
 
-    .game-title { font-weight: bold; font-size: 15px; color: #00ff66; text-align: center; background: #0d1117; border: 2px solid #00ff66; padding: 6px; text-shadow: 0 0 5px rgba(0,255,102,0.5); letter-spacing: 2px; box-shadow: 0 0 10px rgba(0,255,102,0.2); }
+    .game-title { font-weight: bold; font-size: 15px; color: var(--accent); text-align: center; background: #0d1117; border: 2px solid var(--accent); padding: 6px; text-shadow: 0 0 5px rgba(0,255,102,0.5); letter-spacing: 2px; box-shadow: 0 0 10px rgba(0,255,102,0.2); }
     .hud-panel { background: #0d1117; border: 2px solid #22332a; padding: 6px; display: grid; gap: 4px; border-radius: 4px; }
     .hud-panel.row { display: flex; flex-direction: row; justify-content: space-around; }
     .hud-item { background: #07090e; border: 1px solid #16221b; padding: 4px 6px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #88eeaa; }
@@ -27,8 +29,8 @@
     .pixel-btn {
         position: relative;
         background: #111622;
-        border: 2px solid #00ff66;
-        color: #00ff66;
+        border: 2px solid var(--accent);
+        color: var(--accent);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -38,7 +40,7 @@
         cursor: pointer;
         transition: all 0.05s ease;
     }
-    .pixel-btn:active { background: #00ff66; color: #000; transform: scale(0.92); box-shadow: 0 0 15px #00ff66; }
+    .pixel-btn:active { background: var(--accent); color: #000; transform: scale(0.92); box-shadow: 0 0 15px var(--accent); }
     .mini-btn { width: 40px; height: 32px; font-size: 14px; }
 
     /* Keycap Label Overlays */
@@ -56,22 +58,25 @@
     .d-up{ grid-column:2; grid-row:1; } .d-left{ grid-column:1; grid-row:2; } .d-right{ grid-column:3; grid-row:2; } .d-down{ grid-column:2; grid-row:3; }
     .btn-swd{ grid-column:1; grid-row:2; } .btn-shd{ grid-column:2; grid-row:1; } .btn-trc{ grid-column:2; grid-row:3; } .btn-pot{ grid-column:3; grid-row:2; }
 
-    .screen-container { position: relative; border: 4px solid #00ff66; background: #000; display: flex; box-shadow: 0 0 25px rgba(0,255,102,0.25); border-radius: 4px; }
+    .screen-container { position: relative; border: 4px solid var(--accent); background: #000; display: flex; box-shadow: 0 0 25px rgba(0,255,102,0.25); border-radius: 4px; }
     canvas { background: #030406; width: 320px; height: 320px; }
 
     .overlay { position: absolute; inset: 0; background: rgba(5,8,12,0.96); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 100; text-align: center; padding: 20px; }
     .overlay button { padding: 12px 24px; cursor: pointer; background: #1a0000; color: #ff3333; border: 2px solid #aa2222; font-family: monospace; font-weight: bold; box-shadow: 0 0 10px #ff3333; }
     .overlay button:active { transform: scale(0.95); background: #ff3333; color: #000; }
     .overlay.start-overlay { display: flex; background: rgba(3,5,7,0.98); }
-    .overlay.start-overlay button, .overlay#pauseScreen button, .overlay#settingsScreen button, .overlay#creditsScreen button, .overlay#statsScreen button { background: #001a08; color: #00ff66; border-color: #00ff66; box-shadow: 0 0 10px #00ff66; }
-    #toast { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); border: 1px solid #00ff66; color: #00ff66; font-size: 10px; padding: 5px 10px; border-radius: 4px; opacity: 0; transition: opacity 0.2s ease; pointer-events: none; white-space: nowrap; z-index: 60; letter-spacing: 0.5px; }
+    .overlay.start-overlay button, .overlay#pauseScreen button, .overlay#settingsScreen button, .overlay#creditsScreen button, .overlay#statsScreen button { background: #001a08; color: var(--accent); border-color: var(--accent); box-shadow: 0 0 10px var(--accent); }
+    #toast { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); border: 1px solid var(--accent); color: var(--accent); font-size: 10px; padding: 5px 10px; border-radius: 4px; opacity: 0; transition: opacity 0.2s ease; pointer-events: none; white-space: nowrap; z-index: 60; letter-spacing: 0.5px; }
 
     .menu-list { display: flex; flex-direction: column; gap: 10px; width: 220px; }
     .menu-list button { width: 100%; }
     .screen-title { font-size: 18px; letter-spacing: 2px; margin-bottom: 16px; text-shadow: 0 0 8px rgba(0,255,102,0.5); }
     .settings-row { width: 240px; text-align: left; margin-bottom: 14px; }
     .settings-row label { display: flex; justify-content: space-between; font-size: 11px; color: #88eeaa; margin-bottom: 4px; }
-    .settings-row input[type="range"] { width: 100%; accent-color: #00ff66; }
+    .settings-row input[type="range"] { width: 100%; accent-color: var(--accent); }
+    .theme-switch { display: flex; gap: 6px; margin-top: 6px; }
+    .theme-switch .theme-btn { flex: 1; padding: 8px 4px; font-size: 10px; background: #0d1117; color: #88eeaa; border: 1px solid #22332a; box-shadow: none; }
+    .theme-switch .theme-btn.active { background: var(--accent); color: #000; border-color: var(--accent); box-shadow: 0 0 8px var(--accent); }
     .controls-legend { width: 240px; text-align: left; font-size: 10px; color: #88eeaa; line-height: 1.8; margin: 10px 0 16px; border-top: 1px solid #22332a; padding-top: 10px; }
     .controls-legend b { color: #fff; display: inline-block; width: 60px; }
     .credits-text { font-size: 11px; color: #88eeaa; max-width: 250px; line-height: 1.9; margin-bottom: 16px; }
@@ -80,7 +85,7 @@
     .stats-grid .stat-box { background: #0d1117; border: 1px solid #22332a; padding: 8px; border-radius: 4px; }
     .stats-grid .stat-box .label { font-size: 9px; color: #88eeaa; letter-spacing: 1px; }
     .stats-grid .stat-box .value { font-size: 16px; color: #fff; text-shadow: 0 0 4px rgba(255,255,255,0.3); }
-    @media (orientation: portrait) { body::after { content: "PLEASE ROTATE YOUR PHONE"; position: fixed; inset: 0; background: #060608; color: #00ff66; display: flex; align-items: center; justify-content: center; z-index: 999; font-weight: bold; letter-spacing: 2px; } }
+    @media (orientation: portrait) { body::after { content: "PLEASE ROTATE YOUR PHONE"; position: fixed; inset: 0; background: #060608; color: var(--accent); display: flex; align-items: center; justify-content: center; z-index: 999; font-weight: bold; letter-spacing: 2px; } }
 </style>
 </head>
 <body>
@@ -117,7 +122,7 @@
         <div id="toast"></div>
 
         <div class="overlay start-overlay" id="startScreen">
-            <h1 style="font-size: 20px; color:#00ff66; letter-spacing: 2px; margin-bottom: 12px; text-shadow: 0 0 8px rgba(0,255,102,0.6);">GRIDCRYPT</h1>
+            <h1 style="font-size: 20px; color:var(--accent); letter-spacing: 2px; margin-bottom: 12px; text-shadow: 0 0 8px rgba(0,255,102,0.6);">GRIDCRYPT</h1>
             <p style="font-size: 11px; color:#88eeaa; max-width: 260px; line-height: 1.7; margin-bottom: 14px;">
                 Descend 10 floors and escape the dungeon alive.<br><br>
                 <b style="color:#fff;">WASD</b> move &amp; attack &middot; <b style="color:#fff;">Q</b> sword &middot; <b style="color:#fff;">E</b> shield &middot; <b style="color:#fff;">R</b> torch &middot; <b style="color:#fff;">T</b> potion<br><br>
@@ -143,7 +148,7 @@
         </div>
 
         <div class="overlay" id="settingsScreen">
-            <h1 class="screen-title" style="color:#00ff66;">SETTINGS</h1>
+            <h1 class="screen-title" style="color:var(--accent);">SETTINGS</h1>
             <div class="settings-row">
                 <label><span>MUSIC VOLUME</span><span id="musicVolLabel">70%</span></label>
                 <input type="range" id="musicVolSlider" min="0" max="100" value="70" oninput="setMusicVol(this.value)">
@@ -155,6 +160,14 @@
             <div class="settings-row" style="display:flex; justify-content:space-between; align-items:center;">
                 <label style="margin-bottom:0;"><span>MUTE ALL</span></label>
                 <input type="checkbox" id="muteCheckbox" onchange="toggleMute()">
+            </div>
+            <div class="settings-row">
+                <label><span>GAME THEME</span></label>
+                <div class="theme-switch">
+                    <button class="theme-btn" data-theme="emoji" onclick="setTheme('emoji')">EMOJI</button>
+                    <button class="theme-btn" data-theme="terminal" onclick="setTheme('terminal')">TERMINAL</button>
+                    <button class="theme-btn" data-theme="ascii" onclick="setTheme('ascii')">ASCII</button>
+                </div>
             </div>
             <div class="controls-legend">
                 <div><b>WASD</b> Move</div>
@@ -169,7 +182,7 @@
         </div>
 
         <div class="overlay" id="creditsScreen">
-            <h1 class="screen-title" style="color:#00ff66;">CREDITS</h1>
+            <h1 class="screen-title" style="color:var(--accent);">CREDITS</h1>
             <p class="credits-text">
                 <b>GridCrypt</b><br>
                 Designed &amp; developed solo by <b>jomerbiason</b>.<br><br>
@@ -181,7 +194,7 @@
         </div>
 
         <div class="overlay" id="statsScreen">
-            <h1 class="screen-title" style="color:#00ff66;">STATS</h1>
+            <h1 class="screen-title" style="color:var(--accent);">STATS</h1>
             <div class="stats-grid">
                 <div class="stat-box"><div class="label">DEEPEST FLOOR</div><div class="value" id="stat-bestFloor">0</div></div>
                 <div class="stat-box"><div class="label">HIGHEST LEVEL</div><div class="value" id="stat-bestLevel">0</div></div>

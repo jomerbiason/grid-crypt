@@ -31,6 +31,14 @@ export function updateUI() {
     document.getElementById('coins').textContent = `💰${coins}`;
 }
 
+export function syncThemeUI() {
+    document.body.classList.remove('theme-emoji', 'theme-terminal', 'theme-ascii');
+    document.body.classList.add(`theme-${state.settings.theme}`);
+    document.querySelectorAll('.theme-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.theme === state.settings.theme);
+    });
+}
+
 export function renderStatsScreen() {
     const s = state.stats;
     document.getElementById('stat-bestFloor').textContent = s.bestFloor;

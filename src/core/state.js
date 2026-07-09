@@ -1,4 +1,4 @@
-export const DEFAULT_SETTINGS = { musicVol: 70, sfxVol: 70, muted: false };
+export const DEFAULT_SETTINGS = { musicVol: 70, sfxVol: 70, muted: false, theme: 'emoji' };
 export const DEFAULT_STATS = { bestFloor: 0, bestLevel: 0, bestKills: 0, bestCoins: 0, runs: 0, victories: 0 };
 
 const loadedSettings = Object.assign({}, DEFAULT_SETTINGS, JSON.parse(localStorage.getItem('gridcrypt_settings') || '{}'));
