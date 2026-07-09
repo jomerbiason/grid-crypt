@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Refactored `index.html` from a single inline `<script>` into a modular
+  vanilla ES module structure under `src/` (`core`, `world`, `entities`,
+  `ui`, `audio`), sharing state through a single mutable state object. No
+  build step introduced — still loads directly via `<script type="module">`
+  for zero-install GitHub Pages play.
+
 ### Added
 - Start/pause overlays, mute toggle, and toast notifications.
 - Expanded Title screen menu with Play, Stats, Settings, and Credits.

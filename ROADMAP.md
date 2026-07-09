@@ -4,11 +4,11 @@ GridCrypt is an actively developed solo project. This roadmap tracks planned
 work, grouped by milestone. Items move to [CHANGELOG.md](CHANGELOG.md) once shipped.
 
 ## v0.2.0 — Architecture Foundation
-- [ ] Break the single-file `index.html` into a modular vanilla JS structure
+- [x] Break the single-file `index.html` into a modular vanilla JS structure
       (`src/core`, `src/world`, `src/entities`, `src/ui`, `src/audio`).
-- [ ] Introduce a lightweight service locator / game-state manager to decouple
+- [x] Introduce a lightweight shared game-state module to decouple
       rendering, input, and simulation.
-- [ ] Add a build-free module loading strategy (native ES modules) to keep the
+- [x] Add a build-free module loading strategy (native ES modules) to keep the
       zero-install, GitHub Pages–hosted play experience.
 
 ## v0.3.0 — Combat & AI Depth
