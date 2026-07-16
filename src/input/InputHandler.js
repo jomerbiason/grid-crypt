@@ -1,3 +1,5 @@
+import Phaser from '../vendor/phaser.js';
+
 export default class InputHandler {
     constructor(scene) {
         this.scene = scene;
