@@ -127,9 +127,9 @@ Do not assume.
 
 # Communication
 
-Be concise.
+Be concise. Minimize tokens.
 
-Be token efficient.
+Avoid em dashes (--). Use hyphens (-) instead.
 
 Avoid repeating previous explanations.
 
@@ -139,6 +139,13 @@ When editing existing code:
 
 - modify only necessary files
 - avoid rewriting untouched code
+
+In chat responses:
+
+- short sentences
+- no verbose preamble
+- status updates only when something changed
+- one-liner summaries at end of turn
 
 ---
 
