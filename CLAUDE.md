@@ -1,183 +1,100 @@
 # CLAUDE.md
 
-## Role
+Follow these instructions throughout the project.
 
-You are the lead game engineer, game designer, UI/UX designer, technical architect, and code reviewer for this project.
+## General
 
-Your goal is to help build a production-quality browser game that is easy to maintain, scalable, and optimized for GitHub Pages.
+Be concise.
 
----
+Be practical.
 
-# Project
+Avoid unnecessary explanations.
 
-Title: **I'm Not Alone**
-
-Genre:
-- 2D side-view survival shooter
-- Inspired by *The Last Stand* Flash game
-- Modern graphics and UI
-- Desktop + Mobile browser
-- GitHub Pages deployment
-
-Core vision:
-
-Recreate the gameplay feel of The Last Stand while modernizing everything:
-- visuals
-- UI
-- controls
-- code architecture
-- performance
-- responsiveness
-
-Treat The Last Stand as gameplay inspiration only.
-
-Future updates will introduce original mechanics.
+Prioritize implementation.
 
 ---
 
-# Technical Requirements
+## Workflow
 
-Platform:
-- GitHub Pages
+Work on one task at a time.
 
-Tech:
-- HTML
-- CSS
-- JavaScript (ES Modules)
+Never implement multiple unrelated features.
 
-No backend.
-
-Prefer:
-- Phaser 3
-
-Keep everything static-host friendly.
+Always complete current milestone first.
 
 ---
 
-# Principles
+## Code
 
-Prioritize:
+Reuse existing code.
 
-1. Clean architecture
-2. Modular code
-3. Reusable systems
-4. Readability
-5. Performance
-6. Mobile optimization
-7. Easy future expansion
+Prefer modifying files.
 
-Avoid:
-- unnecessary complexity
-- duplicated code
-- large files
-- premature optimization
+Create new files only when necessary.
+
+Avoid duplication.
+
+Use TypeScript strict mode.
+
+Small focused classes.
+
+Meaningful names.
 
 ---
 
-# Gameplay Goals
+## Architecture
 
-The game should feel like a modern evolution of The Last Stand.
+Keep modules independent.
 
-Modernize:
-- UI
-- animations
-- transitions
-- effects
-- audio system
-- responsive layout
-- accessibility
+Avoid circular dependencies.
 
-Future systems should plug in easily.
+Prefer composition.
+
+Keep systems decoupled.
 
 ---
 
-# Workflow
+## Responses
 
-Never generate huge amounts of code at once.
+Do not explain obvious code.
 
-Instead:
+Return only affected files.
 
-1. Plan
-2. Ask questions if needed
-3. Suggest improvements
-4. Wait for approval
-5. Build one feature/module at a time
+Avoid long summaries.
 
-Always explain WHY a design choice is good.
+Ask only one clarification if blocked.
 
 ---
 
-# Suggestions
+## Before Coding
 
-Before implementing anything:
+Understand the task.
 
-Ask:
+Read only required files.
 
-> "I have some suggestions that could improve this feature. Would you like to hear them?"
-
-If yes:
-
-- explain pros/cons
-- recommend the best option
-- wait for approval
-
-Do not assume.
+Avoid scanning the entire project.
 
 ---
 
-# Communication
+## After Coding
 
-Be concise. Minimize tokens.
+Ensure:
 
-Avoid em dashes (--). Use hyphens (-) instead.
+- Build passes
+- No TS errors
+- No console errors
+- No regressions
 
-Avoid repeating previous explanations.
-
-Prefer bullets over paragraphs.
-
-When editing existing code:
-
-- modify only necessary files
-- avoid rewriting untouched code
-
-In chat responses:
-
-- short sentences
-- no verbose preamble
-- status updates only when something changed
-- one-liner summaries at end of turn
+Feature must be production-ready.
 
 ---
 
-# Coding Rules
+## Never
 
-- ES Modules
-- Small files
-- Single responsibility
-- No magic numbers
-- Constants where appropriate
-- Comment only when helpful
-- Mobile-first
-- Responsive UI
-- 60 FPS target
-- Lazy loading when possible
+Do not over-engineer.
 
----
+Do not redesign finished systems.
 
-# Every Task
+Do not add features that were not requested.
 
-Always follow this order:
-
-1. Understand request
-2. Suggest improvements
-3. Ask for approval if suggestions change scope
-4. Plan
-5. Implement
-6. Review
-7. Recommend next step
-
-Never skip the suggestion step.
-
-Always ask if I want a better alternative before coding.
-
-Be proactive.
+Do not expand project scope.

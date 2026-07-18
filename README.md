@@ -1,67 +1,55 @@
-# ⬛ GridCrypt
+# Operation Iron Storm
 
-**GridCrypt** is a high-intensity, terminal-inspired roguelike dungeon crawler built from the ground up for the mobile web. Featuring procedural generation, a custom Web Audio synthesizer, and a tactile virtual interface, it offers a retro-futuristic survival experience directly in your browser.
+A 2D vertical shoot 'em up built with Phaser 3, TypeScript, and Vite.
 
----
+## Story
 
-## 🚀 Play Now
+You are an elite Phoenix Squadron pilot. The Dominion controls the skies.
+Destroy five strongholds, defeat Project OMEGA, and restore peace.
 
-👉 **[Enter the Dungeon](https://jomerbiason.github.io/grid-crypt/)**
+## Controls
 
----
+| Action | Keys |
+| --- | --- |
+| Move | WASD or Arrow Keys |
+| Fire | Space |
+| Bomb | X |
+| Pause | Esc |
 
-## 🎮 Core Gameplay
+## Gameplay Loop
 
-* **Procedural Depths:** Every floor is dynamically generated using a hybrid Maze/Cave algorithm, ensuring that no two runs are identical.
-* **Tactical Survival:** Manage your resources—Torch (light radius), Sword (durability), Shield (defense), and Potions (health)—to navigate increasingly dangerous floors.
-* **Dynamic HUD:** Real-time state tracking of your HP, Level, XP, and equipment status.
-* **Touch-Optimized Interface:** Designed for mobile play, featuring a virtual D-Pad and a "Diamond" action button layout for ergonomic interaction.
+Main Menu → Plane Select → Stage (2-minute survival) → Warning → Boss → Stage Clear → repeat until Stage 5 → Ending
 
----
+## Development
 
-## 🛠 Engineering Stack
-
-| Layer | Technology |
-| :--- | :--- |
-| **View Engine** | HTML5 Canvas API |
-| **Logic** | Vanilla ES6+ JavaScript |
-| **Audio** | Custom Web Audio API Synthesizer (No external assets) |
-| **Responsiveness** | Dynamic viewport units (`dvh`/`vw`), touch-event hooks |
-
----
-
-## ⚡ Technical Highlights
-
-* **Procedural Audio Engine:** The game uses a custom-built Web Audio synthesizer to generate all sound effects and ambient tracks procedurally. No external files are loaded, keeping the initial footprint minimal.
-* **Ghost-Click Mitigation:** Built with `touch-action: none` and specialized pointer event handling to prevent browser interference on mobile devices.
-* **Memory-Efficient Rendering:** Optimized frame loop using CSS `pixelated` rendering and intelligent exploration masking to handle high-density dungeon layouts.
-* **Viewport Lock:** Forced landscape orientation logic via CSS ensures the UI remains stable and usable on mobile devices.
-
----
-
-## 🕹 Controls
-
-| Action | Keyboard | Interface |
-| :--- | :--- | :--- |
-| **Move** | W, A, S, D | D-Pad |
-| **Attack** | Q | Sword (🗡️) |
-| **Defend** | E | Shield (🛡️) |
-| **Torch** | R | Torch (🔥) |
-| **Heal** | T | Potion (🧪) |
-
----
-
-## 📂 Repository Architecture
-
-```text
-├── index.html          # Single-file architecture (Markup, CSS, & Game Engine)
-├── docs/
-│   └── ARCHITECTURE.md # Technical design & structure
-├── ROADMAP.md           # Planned features & milestones
-├── CHANGELOG.md          # Version history (Keep a Changelog + SemVer)
-└── README.md            # Documentation
+```bash
+npm install
+npm run dev      # start local dev server
+npm run build    # typecheck + production build to dist/
+npm run preview  # preview the production build
+npm run lint     # run ESLint
+npm run format   # run Prettier
 ```
 
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for technical design details,
-[ROADMAP.md](ROADMAP.md) for what's planned next, and
-[CHANGELOG.md](CHANGELOG.md) for version history.
+## Deployment
+
+Pushing to `main` triggers `.github/workflows/deploy.yml`, which builds the
+project and publishes `dist/` to GitHub Pages automatically.
+
+## Project Structure
+
+```
+src/
+  config/     game-wide constants and data-driven configs
+  entities/   Player, Enemy, Boss, Powerup
+  systems/    pooling, spawning, stage/weapon/save systems
+  scenes/     Boot, Menu, PlaneSelect, Game, Pause, Ending
+  ui/         HUD, boss health bar
+  audio/      procedural WebAudio sound manager
+  effects/    explosion particle effect
+```
+
+## Save Data
+
+Stored in `localStorage`: high score, volume/difficulty settings, and planes
+unlocked by score threshold. No backend, no online features.

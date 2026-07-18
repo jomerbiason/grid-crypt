@@ -1,20 +1,16 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<title>I'm Not Alone</title>
-<style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { height: 100%; background: #0a0a0d; overflow: hidden; }
-    #game-root { display: flex; align-items: center; justify-content: center; height: 100dvh; width: 100vw; }
-    canvas { image-rendering: pixelated; max-width: 100vw; max-height: 100dvh; }
-</style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Operation Iron Storm</title>
+    <style>
+        html, body { margin: 0; padding: 0; background: #000; overflow: hidden; }
+        #game-container { display: flex; justify-content: center; align-items: center; width: 100vw; height: 100vh; }
+    </style>
 </head>
 <body>
-<div id="game-root"></div>
-<script type="module" src="./src/main.js"></script>
+    <div id="game-container"></div>
+    <script type="module" src="/src/main.ts"></script>
 </body>
 </html>
